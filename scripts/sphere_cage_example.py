@@ -36,8 +36,8 @@ def main(
     benchmark: bool = True,
     n_trials: int = 100,
     radius: float = 0.2,
-    visualize: bool = False,
-    planner: str = "rrtc",
+    visualize: bool = True,
+    planner: str = "flat_prm",
     **kwargs,
     ):
 

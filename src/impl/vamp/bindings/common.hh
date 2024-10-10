@@ -6,6 +6,7 @@
 #include <vamp/planning/simplify.hh>
 #include <vamp/planning/plan.hh>
 #include <vamp/planning/prm.hh>
+#include <vamp/planning/flat_prm.hh>
 #include <vamp/planning/rrtc.hh>
 #include <vamp/vector.hh>
 
@@ -88,6 +89,7 @@ namespace vamp::binding
 
         using Halton = vamp::rng::Halton<Robot::dimension>;
         using PRM = vamp::planning::PRM<Robot, Halton, rake, Robot::resolution>;
+        using FlatPRM = vamp::planning::FlatPRM<Robot, Halton, rake, Robot::resolution>;
         using RRTC = vamp::planning::RRTC<Robot, Halton, rake, Robot::resolution>;
 
         inline static auto fk(const ConfigurationArray &configuration)
@@ -185,7 +187,17 @@ namespace vamp::binding
             return PRM::solve(
                 Configuration(start), Configuration(goal), EnvironmentVector(environment), settings);
         }
-
+        inline static auto flat_prm_single(
+            const ConfigurationArray &start,
+            const ConfigurationArray &goal,
+            const EnvironmentInput &environment,
+            const vamp::planning::RoadmapSettings<vamp::planning::PRMStarNeighborParams> &settings)
+            -> PlanningResult
+        {
+            ;
+            return FlatPRM::solve(
+                Configuration(start), Configuration(goal), EnvironmentVector(environment), settings);
+        }
         inline static auto
         prm(const ConfigurationArray &start,
             const std::vector<ConfigurationArray> &goals,
@@ -205,6 +217,25 @@ namespace vamp::binding
             return PRM::solve(start_v, goals_v, EnvironmentVector(environment), settings);
         }
 
+        inline static auto
+        flat_prm(const ConfigurationArray &start,
+            const std::vector<ConfigurationArray> &goals,
+            const EnvironmentInput &environment,
+            const vamp::planning::RoadmapSettings<vamp::planning::PRMStarNeighborParams> &settings)
+            -> PlanningResult
+        {
+            std::vector<Configuration> goals_v;
+            goals_v.reserve(goals.size());
+
+            for (const auto &goal : goals)
+            {
+                goals_v.emplace_back(goal);
+            }
+
+            const Configuration start_v(start);
+            return FlatPRM::solve(start_v, goals_v, EnvironmentVector(environment), settings);
+        }
+
         inline static auto roadmap(
             const ConfigurationArray &start,
             const ConfigurationArray &goal,
@@ -212,6 +243,16 @@ namespace vamp::binding
             const vamp::planning::RoadmapSettings<vamp::planning::PRMStarNeighborParams> &settings) -> Roadmap
         {
             return PRM::build_roadmap(
+                Configuration(start), Configuration(goal), EnvironmentVector(environment), settings);
+        }
+
+        inline static auto flat_roadmap(
+            const ConfigurationArray &start,
+            const ConfigurationArray &goal,
+            const EnvironmentInput &environment,
+            const vamp::planning::RoadmapSettings<vamp::planning::PRMStarNeighborParams> &settings) -> Roadmap
+        {
+            return FlatPRM::build_roadmap(
                 Configuration(start), Configuration(goal), EnvironmentVector(environment), settings);
         }
 
@@ -454,6 +495,26 @@ namespace vamp::binding
 
         submodule.def(
             "prm",
+            RH::prm,
+            "start"_a,
+            "goal"_a,
+            "environment"_a,
+            "settings"_a = vamp::planning::RoadmapSettings<vamp::planning::PRMStarNeighborParams>(
+                vamp::planning::PRMStarNeighborParams(Robot::dimension, Robot::space_measure())),
+            "Solve the motion planning problem with PRM.");
+
+        submodule.def(
+            "flat_prm",
+            RH::prm_single,
+            "start"_a,
+            "goal"_a,
+            "environment"_a,
+            "settings"_a = vamp::planning::RoadmapSettings<vamp::planning::PRMStarNeighborParams>(
+                vamp::planning::PRMStarNeighborParams(Robot::dimension, Robot::space_measure())),
+            "Solve the motion planning problem with FlatPRM.");
+
+        submodule.def(
+            "flat_prm",
             RH::prm,
             "start"_a,
             "goal"_a,

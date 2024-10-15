@@ -27,32 +27,36 @@ namespace vamp::planning
         std::size_t resolution,
         typename NeighborParamsT = PRMStarNeighborParams,
         std::size_t batch = 128>
-    struct FlatPRM
+    struct PRM
     {
         using Configuration = typename Robot::Configuration;
+        using FlatState = std::pair<Configuration, Configuration>; // The first element is q, the second element is q_dot
         static constexpr auto dimension = Robot::dimension;
+        static constexpr auto flat_dimension = 2*dimension;
 
         inline static auto solve(
             const Configuration &start,
             const Configuration &goal,
             const collision::Environment<FloatVector<rake>> &environment,
-            const RoadmapSettings<NeighborParamsT> &settings) noexcept -> PlanningResult<dimension>
+            const RoadmapSettings<NeighborParamsT> &settings) noexcept -> PlanningResult<flat_dimension>
         {
             return solve(start, std::vector<Configuration>{goal}, environment, settings);
         }
 
         inline static auto solve(
-            const Configuration &start,
-            const std::vector<Configuration> &goals,
+            const FlatState &start,
+            const std::vector<FlatState> &goals,
             const collision::Environment<FloatVector<rake>> &environment,
-            const RoadmapSettings<NeighborParamsT> &settings) noexcept -> PlanningResult<dimension>
+            const RoadmapSettings<NeighborParamsT> &settings) noexcept -> PlanningResult<flat_dimension>
         {
-            PlanningResult<dimension> result;
+            PlanningResult<flat_dimension> result;
 
-            NN<dimension> roadmap;
+            NN<flat_dimension> roadmap;
 
             auto start_time = std::chrono::steady_clock::now();
 
+            // We only need to double the state space from q to (q, q_dot) for: KD-Tree, Path, Trajectory Generation (Steering Fcn).
+            // Maybe it is better to do that here in the planner instead of changing the robot class?
             // Check if the straight-line solution is valid
             for (const auto &goal : goals)
             {

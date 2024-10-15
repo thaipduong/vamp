@@ -521,7 +521,7 @@ namespace vamp::binding
             "environment"_a,
             "settings"_a = vamp::planning::RoadmapSettings<vamp::planning::PRMStarNeighborParams>(
                 vamp::planning::PRMStarNeighborParams(Robot::dimension, Robot::space_measure())),
-            "Solve the motion planning problem with PRM.");
+            "Solve the motion planning problem with FlatPRM.");
 
         submodule.def(
             "roadmap",

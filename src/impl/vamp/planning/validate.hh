@@ -33,6 +33,7 @@ namespace vamp::planning
         typename Robot::template ConfigurationBlock<rake> block;
 
         // HACK: broadcast() implicitly assumes that the rake is exactly VectorWidth
+        // What does this broadcast function do?
         for (auto i = 0U; i < Robot::dimension; ++i)
         {
             block[i] = start.broadcast(i) + (vector.broadcast(i) * percents);

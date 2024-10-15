@@ -27,7 +27,7 @@ namespace vamp::planning
         std::size_t resolution,
         typename NeighborParamsT = PRMStarNeighborParams,
         std::size_t batch = 128>
-    struct PRM
+    struct FlatPRM
     {
         using Configuration = typename Robot::Configuration;
         using FlatState = std::pair<Configuration, Configuration>; // The first element is q, the second element is q_dot

@@ -44,7 +44,7 @@ namespace vamp
         // named, and packing tightly would make row access/extraction operations more expensive
         // (since they would need to parts of multiple vectors in weird overlaps)
         inline static constexpr std::size_t num_vectors = num_rows * num_vectors_per_row;
-        using DataT = std::array<typename S::VectorT, num_vectors>;
+        using DataT = std::array<typename S::VectorT, num_vectors>; // An std array of mm256
     };
 
     template <typename DerivedT, typename Sig>
@@ -67,17 +67,20 @@ namespace vamp
             return result;
         }
 
+        // Store the data from this vector to a prespecified array buffer
         inline constexpr void
         to_array(std::array<typename S::ScalarT, num_scalars_rounded> &buf) const noexcept
         {
             to_array(buf.data());
         }
 
+        // Store the data from this vector to an array stating at buffer
         inline constexpr void to_array(typename S::ScalarT *buf) const noexcept
         {
             store_vector(buf, std::make_index_sequence<num_vectors>());
         }
 
+        // Store the data from this vector to an array stating at buffer
         inline constexpr void to_array_unaligned(typename S::ScalarT *buf) const noexcept
         {
             store_vector_unaligned(buf, std::make_index_sequence<num_vectors>());
@@ -916,9 +919,11 @@ namespace vamp
             return row(idx);
         }
 
+        // What does this broadcast function do?
         inline constexpr auto broadcast(std::size_t idx) const noexcept -> Vector<S, 1, S::VectorWidth>
         {
             auto [v_idx, v_offset] = utils::c_div(idx, S::VectorWidth);
+            // It looks like we will broadcast data[v_idx, v_offset], data is basically a matrix of size dim x VectorWidth (8)
             return Vector<S, 1, S::VectorWidth>({S::broadcast(data[v_idx], v_offset)});
         }
     };

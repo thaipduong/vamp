@@ -49,6 +49,7 @@ namespace vamp
             return v[idx];
         }
 
+        // This fcn returns a SIMDVector with VectorLength = 8
         template <unsigned int = 0>
         inline static constexpr auto broadcast(VectorT v, int idx) noexcept -> VectorT
         {

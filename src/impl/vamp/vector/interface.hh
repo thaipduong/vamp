@@ -734,6 +734,7 @@ namespace vamp
             (..., fn(base + I * stride, std::get<I>(data)));
         }
 
+        // We load each ScalarT and move by VectorWidth because the load function load a mm256 at a time?
         template <std::size_t... I>
         inline constexpr void
         load_vector(const typename S::ScalarT *const scalar_array, std::index_sequence<I...>) noexcept

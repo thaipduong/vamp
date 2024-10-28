@@ -86,11 +86,13 @@ namespace vamp
             store_vector_unaligned(buf, std::make_index_sequence<num_vectors>());
         }
 
+        // Fill the vector will scalar f
         inline static constexpr auto fill(typename S::ScalarT f) noexcept -> D
         {
             return D(make_array(f, std::make_index_sequence<num_vectors>()));
         }
 
+        // 
         inline constexpr auto rcp() const noexcept -> D
         {
             return D(apply<S::template rcp<0>>(d()->data));
@@ -651,6 +653,7 @@ namespace vamp
             return OtherT{apply<S::template as<typename OtherT::S::VectorT>>(d()->data)};
         }
 
+        // Trim the extra elements to make the number of scalars a multiple of 8 --> how do we maintain the matrix dimension?
         inline constexpr auto trim() const noexcept -> D
         {
             if constexpr (num_scalars % S::VectorWidth)
@@ -734,7 +737,6 @@ namespace vamp
             (..., fn(base + I * stride, std::get<I>(data)));
         }
 
-        // We load each ScalarT and move by VectorWidth because the load function load a mm256 at a time?
         template <std::size_t... I>
         inline constexpr void
         load_vector(const typename S::ScalarT *const scalar_array, std::index_sequence<I...>) noexcept
@@ -782,6 +784,7 @@ namespace vamp
         {
             return v == 0xffffffff;
         }
+
 
         template <std::size_t... I>
         inline static constexpr auto
@@ -894,13 +897,13 @@ namespace vamp
         [[nodiscard]] inline constexpr auto row(std::size_t idx) const noexcept -> RowT
         {
             return RowT(*reinterpret_cast<const std::array<typename S::VectorT, num_vectors_per_row> *>(
-                data.data() + idx));
+                data.data() + idx*num_vectors_per_row));
         }
 
         [[nodiscard]] inline constexpr auto row(std::size_t idx) noexcept -> RowT &
         {
             return *reinterpret_cast<RowT *>(
-                reinterpret_cast<std::array<typename S::VectorT, num_vectors_per_row> *>(data.data() + idx));
+                reinterpret_cast<std::array<typename S::VectorT, num_vectors_per_row> *>(data.data() + idx*num_vectors_per_row));
         }
 
         inline constexpr auto operator[](std::size_t idx) const noexcept -> RowT

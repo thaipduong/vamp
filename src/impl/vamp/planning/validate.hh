@@ -30,6 +30,7 @@ namespace vamp::planning
         // TODO: Fix use of reinterpret_cast in pack() so that this can be constexpr
         const auto percents = FloatVector<rake>(Percents<rake>::percents);
 
+        // Vector: num of rows = DOF, num of scalar per row = rake 
         typename Robot::template ConfigurationBlock<rake> block;
 
         // HACK: broadcast() implicitly assumes that the rake is exactly VectorWidth
@@ -39,6 +40,8 @@ namespace vamp::planning
             block[i] = start.broadcast(i) + (vector.broadcast(i) * percents);
         }
 
+        // n is the number of points per rake
+        //  resolution is the number of point per a unit of distance
         const std::size_t n = std::max(std::ceil(distance / static_cast<float>(rake) * resolution), 1.F);
 
         bool valid = (environment.attachments) ? Robot::template fkcc_attach<rake>(environment, block) :
@@ -48,7 +51,7 @@ namespace vamp::planning
             return valid;
         }
 
-        const auto backstep = vector / (rake * n);
+        const auto backstep = vector / (rake * n); // = vector / (distance * resolution) = (vector/distance)/resolution, vector/distance is a unit vector
         for (auto i = 1U; i < n; ++i)
         {
             for (auto j = 0U; j < Robot::dimension; ++j)

@@ -146,7 +146,7 @@ namespace vamp::planning
     {
         RoadmapNode(
             unsigned int index,
-            unsigned int component,
+            unsigned int component, // connected component
             float g = std::numeric_limits<float>::infinity())
           : index(index), component(component), g(g)
         {

@@ -78,6 +78,7 @@ namespace vamp::planning
                     settings.max_samples * Configuration::num_scalars_rounded));
             // TODO: Is it better to just use arrays for these since we're reserving full capacity
             // anyway? Test it!
+            // Roadmap Node contains index + component + distance while NNNode is for KD tree.
             std::vector<RoadmapNode> nodes;
             nodes.reserve(settings.max_samples);
             std::vector<utils::ConnectedComponent> components;
@@ -91,10 +92,12 @@ namespace vamp::planning
 
             auto *start_state = state_index(start_index);
             start.to_array(start_state);
+            // Add start node to the map, idx 0, component 0, distance 0.0
             nodes.emplace_back(start_index, start_index, 0.0);
             roadmap.insert(NNNode<dimension>{start_index, {start_state}});
-            components.emplace_back(utils::ConnectedComponent{start_index, 1});
-
+            components.emplace_back(utils::ConnectedComponent{start_index, 1}); // Add new connected component with parent_idx = start_idx, size = 1
+            
+            // Add goal to the roadmap + list of nodes
             for (const auto &goal : goals)
             {
                 std::size_t index = nodes.size();
@@ -102,7 +105,7 @@ namespace vamp::planning
                 goal.to_array(goal_state);
                 nodes.emplace_back(index, index);
                 roadmap.insert(NNNode<dimension>{index, {goal_state}});
-                components.emplace_back(utils::ConnectedComponent{index, 1});
+                components.emplace_back(utils::ConnectedComponent{index, 1}); // Add new connected component with parent_idx = start_idx, size = 1
             }
 
             const std::size_t goal_max_index = nodes.size();
@@ -116,7 +119,7 @@ namespace vamp::planning
                 // validation API
 
                 // Check sample validity
-                for (auto i = 0U; i < dimension; ++i)
+                for (auto i = 0U; i  dimension; ++i)
                 {
                     temp_block[i] = temp.broadcast(i);
                 }

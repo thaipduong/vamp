@@ -897,15 +897,15 @@ namespace vamp
         [[nodiscard]] inline constexpr auto row(std::size_t idx) const noexcept -> RowT
         {
             return RowT(*reinterpret_cast<const std::array<typename S::VectorT, num_vectors_per_row> *>(
-                data.data() + idx*num_vectors_per_row));
+                data.data() + idx));
         }
 
         [[nodiscard]] inline constexpr auto row(std::size_t idx) noexcept -> RowT &
         {
             return *reinterpret_cast<RowT *>(
-                reinterpret_cast<std::array<typename S::VectorT, num_vectors_per_row> *>(data.data() + idx*num_vectors_per_row));
+                reinterpret_cast<std::array<typename S::VectorT, num_vectors_per_row> *>(data.data() + idx));
         }
-
+//*num_vectors_per_row
         inline constexpr auto operator[](std::size_t idx) const noexcept -> RowT
         {
             return row(idx);

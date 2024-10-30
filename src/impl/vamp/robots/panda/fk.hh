@@ -11,6 +11,7 @@ namespace vamp::robots::panda
     template <std::size_t rake>
     using ConfigurationBlock = FloatVector<rake, 7>;
 
+    //This is to scale the configuration samples between (0,1) to the min and max angles
     alignas(Configuration::S::Alignment) constexpr std::array<float, 7> s_m_a{
         5.9342f,
         3.6652f,
@@ -35,7 +36,7 @@ namespace vamp::robots::panda
     {
         q = q * s_m + s_a;
     }
-
+    //This is to descale from the actual configuration between min and max angles to the configuration samples between (0,1)
     alignas(Configuration::S::Alignment) constexpr std::array<float, 7> d_m_a{
         0.1685147113342995f,
         0.2728364072901888f,

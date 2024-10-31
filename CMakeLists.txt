@@ -130,6 +130,8 @@ foreach(robot_name IN LISTS VAMP_ROBOT_MODULES)
   )
 endforeach()
 
+
+
 if(VAMP_BUILD_OMPL_DEMO)
   find_package(ompl QUIET PATHS ${VAMP_OMPL_PATH})
 
@@ -141,3 +143,7 @@ if(VAMP_BUILD_OMPL_DEMO)
     message(WARNING "OMPL not found! Cannot build OMPL demo.")
   endif()
 endif()
+
+add_executable(traj_gen scripts/cpp/traj_gen.cc)
+target_link_libraries(traj_gen PRIVATE Eigen3::Eigen)
+target_include_directories(traj_gen SYSTEM PRIVATE ${VAMP_EXT_INCLUDES})

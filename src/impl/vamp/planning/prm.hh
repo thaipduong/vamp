@@ -119,7 +119,7 @@ namespace vamp::planning
                 // validation API
 
                 // Check sample validity
-                for (auto i = 0U; i  dimension; ++i)
+                for (auto i = 0U; i < dimension; ++i)
                 {
                     temp_block[i] = temp.broadcast(i);
                 }

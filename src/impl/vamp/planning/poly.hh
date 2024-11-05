@@ -30,11 +30,36 @@ namespace vamp::planning
 
         inline auto eval(float t) noexcept
         {
-            FloatVector<dim> val = coeffs.at(0);
+            // FloatVector<dim> val = coeffs.at(0);
 
-            for(auto i = 1U; i < coeffs.size(); i++)
+            // for(auto i = 1U; i < coeffs.size(); i++)
+            // {
+            //     val = val + coeffs.at(i)*std::pow(t, i);
+            // }
+            assert(coeffs.size() > 0);
+
+            FloatVector<dim> val = coeffs.at(coeffs.size()-1);
+            if (coeffs.size() > 1)
             {
-                val = val + coeffs.at(i)*std::pow(t, i);
+                for(auto i = coeffs.size() - 1; i > 0 ; i--)
+                {
+                    val = val*t + coeffs.at(i-1);
+                }
+            }
+            return val;
+        }
+        
+        // HACK: broadcast() implicitly assumes that the rake is exactly dim
+        template <std::size_t rake>
+        inline auto eval_rake(std::size_t k, FloatVector<rake> t) noexcept
+        {
+            FloatVector<rake> val = coeffs.at(coeffs.size()-1).broadcast(k);
+            if (coeffs.size() > 1)
+            {
+                for(auto i = coeffs.size()-1; i > 0; i--)
+                {
+                    val = val*t + coeffs.at(i-1).broadcast(k);
+                }
             }
             return val;
         }

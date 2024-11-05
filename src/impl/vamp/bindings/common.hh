@@ -149,6 +149,20 @@ namespace vamp::binding
                 configuration_v, configuration_v, EnvironmentVector(environment));
         }
 
+        inline static auto
+        validate_traj(
+            const ConfigurationArray &start,
+            const ConfigurationArray &goal,
+            const float &T,
+            const EnvironmentInput &environment)
+            -> bool
+        {           
+            auto traj = vamp::planning::opt_traj<Robot::dimension>(
+                Configuration(start), Configuration::zero_vector(), Configuration(goal), Configuration::zero_vector(), T);
+            return vamp::planning::validate_poly<Robot, rake, Robot::resolution>(
+                traj, T, EnvironmentVector(environment));
+        }
+
         inline static auto rrtc_single(
             const ConfigurationArray &start,
             const ConfigurationArray &goal,
@@ -577,6 +591,15 @@ namespace vamp::binding
             "configuration"_a,
             "environment"_a = vamp::collision::Environment<float>(),
             "Check if a configuration is valid. Returns true if valid.");
+
+        submodule.def(
+            "validate_traj",
+            RH::validate_traj,
+            "start"_a,
+            "goal"_a,
+            "T"_a,
+            "environment"_a = vamp::collision::Environment<float>(),
+            "Check if the optimal trajectory connecting start and goal is valid. Returns true if valid.");
 
         submodule.def(
             "sphere_validity",

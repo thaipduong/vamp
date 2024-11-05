@@ -69,7 +69,7 @@ namespace vamp::planning
     }
 
     template <typename Robot, std::size_t rake, std::size_t resolution>
-    inline constexpr auto validate_traj(
+    inline constexpr auto validate_poly(
         Polynomial<Robot::dimension> &traj,
         float T,
         const collision::Environment<FloatVector<rake>> &environment) -> bool

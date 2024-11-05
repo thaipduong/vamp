@@ -5,6 +5,7 @@
 #include <vamp/planning/validate.hh>
 #include <vamp/planning/simplify.hh>
 #include <vamp/planning/plan.hh>
+#include <vamp/planning/poly.hh>
 #include <vamp/planning/prm.hh>
 #include <vamp/planning/flat_prm.hh>
 #include <vamp/planning/rrtc.hh>
@@ -198,6 +199,19 @@ namespace vamp::binding
             return FlatPRM::solve(
                 Configuration(start), Configuration(goal), EnvironmentVector(environment), settings);
         }
+
+        inline static auto traj_to_path(
+            const ConfigurationArray &start,
+            const ConfigurationArray &goal,
+            const float &T,
+            const std::size_t &resolution)
+            -> Path
+        {           
+            auto traj = vamp::planning::opt_traj<Robot::dimension>(
+                Configuration(start), Configuration::zero_vector(), Configuration(goal), Configuration::zero_vector(), T);
+            return traj.to_path(T, resolution);
+        }
+
         inline static auto
         prm(const ConfigurationArray &start,
             const std::vector<ConfigurationArray> &goals,
@@ -522,6 +536,15 @@ namespace vamp::binding
             "settings"_a = vamp::planning::RoadmapSettings<vamp::planning::PRMStarNeighborParams>(
                 vamp::planning::PRMStarNeighborParams(Robot::dimension, Robot::space_measure())),
             "Solve the motion planning problem with FlatPRM.");
+
+        submodule.def(
+            "traj_to_path",
+            RH::traj_to_path,
+            "start"_a,
+            "goal"_a,
+            "T"_a,
+            "resolution"_a,
+            "Generate a path from a polynomial trajectory to visualize.");
 
         submodule.def(
             "roadmap",

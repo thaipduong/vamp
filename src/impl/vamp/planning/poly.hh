@@ -2,6 +2,7 @@
 
 #include <limits>
 #include <vamp/vector.hh>
+#include <vamp/planning/plan.hh>
 #include <vector>
 
 namespace vamp::planning
@@ -73,6 +74,21 @@ namespace vamp::planning
             }
             return Polynomial<dim>(ret_coeffs, this->order + o.order);
         }
+
+        inline auto to_path(float T,
+                                std::size_t resolution /*number of samples per second*/
+                                ) noexcept -> Path<dim>
+        {
+            Path<dim> new_path;
+            auto n_states = static_cast<std::size_t>(T * static_cast<float>(resolution));
+            new_path.reserve(n_states);
+
+            for (auto i = 0U; i < n_states; ++i)
+            {
+                new_path.emplace_back(this->eval(static_cast<float>(i)/static_cast<float>(resolution)));
+            }
+            return new_path;
+        }
     };
 
     template <std::size_t dim>
@@ -95,4 +111,5 @@ namespace vamp::planning
         ret_coeffs.emplace_back(coeff3);
         return Polynomial<dim>(ret_coeffs, 3);
     }
+
 }

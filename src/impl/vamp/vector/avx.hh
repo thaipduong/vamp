@@ -181,6 +181,7 @@ namespace vamp
             return _mm256_or_ps(l, r);
         }
 
+        // Why not using _mm256_sqrt_ps?
         template <unsigned int = 0>
         inline static constexpr auto sqrt(VectorT v) noexcept -> VectorT
         {

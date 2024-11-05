@@ -14,6 +14,7 @@ namespace vamp::robots
         static constexpr auto space_measure = fetch::space_measure;
         using Configuration = FloatVector<dimension>;
         using ConfigurationArray = std::array<FloatT, dimension>;
+        using ConfigurationFlat = std::array<FloatT, 2*dimension>;
 
         struct alignas(FloatVectorAlignment) ConfigurationBuffer
           : std::array<float, Configuration::num_scalars_rounded>

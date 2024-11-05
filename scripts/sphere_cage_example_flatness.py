@@ -96,12 +96,14 @@ def main(
             e.add_sphere(vamp.Sphere(sphere, radius))
             sim.add_sphere(radius, sphere)
 
-        result = planner_func(a, b, e, plan_settings)
-        simple = vamp_module.simplify(result.path, e, simp_settings)
+        
+        path = vamp.panda.traj_to_path(a, b, 3.0, 100)
+        #result = planner_func(a, b, e, plan_settings)
+        #simple = vamp_module.simplify(result.path, e, simp_settings)
 
-        simple.path.interpolate(vamp.panda.resolution())
-
-        sim.animate(simple.path)
+        #simple.path.interpolate(vamp.panda.resolution())
+        np_path = path.numpy()
+        sim.animate(path)
 
 
 if __name__ == "__main__":

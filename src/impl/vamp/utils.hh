@@ -7,6 +7,7 @@
 
 namespace vamp::utils
 {
+    // How does this return the round size?
     inline constexpr auto round_size(std::size_t size, std::size_t block) noexcept -> std::size_t
     {
         return ((size + block - 1) / block) * block;

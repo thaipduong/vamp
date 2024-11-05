@@ -84,7 +84,7 @@ namespace vamp::planning
         // What does this broadcast function do?
         for (auto i = 0U; i < Robot::dimension; ++i)
         {
-            block[i] = traj.eval_rake(i, rake);
+            block[i] = traj.eval_rake(i, sampling_times);
         }
 
         // n is the number of points per rake
@@ -104,7 +104,7 @@ namespace vamp::planning
         {
             for (auto j = 0U; j < Robot::dimension; ++j)
             {
-                block[j] = traj.eval_rake(j, rake);
+                block[j] = traj.eval_rake(j, sampling_times -  i*backstep);
             }
 
             if (not Robot::template fkcc<rake>(environment, block))

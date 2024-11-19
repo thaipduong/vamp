@@ -17,6 +17,11 @@ namespace vamp::robots::fetch
     template <std::size_t block_width>
     using ConfigurationBlock = FloatVector<block_width, 8>;
 
+
+    using ConfigurationFlat = FloatVector<8>;
+    template <std::size_t rake>
+    using ConfigurationBlock = FloatVector<rake, 8>;
+
     alignas(Configuration::S::Alignment) constexpr std::array<float, 8> s_m_a{
         0.38615f,
         3.2112f,

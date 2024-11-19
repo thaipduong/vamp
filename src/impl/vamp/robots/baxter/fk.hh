@@ -11,6 +11,11 @@ namespace vamp::robots::baxter
     template <std::size_t block_width>
     using ConfigurationBlock = FloatVector<block_width, 14>;
 
+
+    using ConfigurationFlat = FloatVector<14>;
+    template <std::size_t rake>
+    using ConfigurationBlock = FloatVector<rake, 14>;
+
     alignas(Configuration::S::Alignment) constexpr std::array<float, 14> s_m_a{
         3.40335987756,
         3.194,

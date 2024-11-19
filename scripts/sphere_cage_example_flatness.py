@@ -30,12 +30,13 @@ problem = [
     [0.35, -0.35, 0.8],
     ]
 
-#problem = []
+#problem = [[0.35, 0.35, 0.8]]
+problem = [[0.35, -0.35, 0.8]]
 
 
 def main(
     variation: float = 0.01,
-    benchmark: bool = True,
+    benchmark: bool = False,
     n_trials: int = 100,
     radius: float = 0.2,
     visualize: bool = True,
@@ -98,15 +99,15 @@ def main(
 
         
         path = vamp.panda.traj_to_path(a, b, 3.0, 100)
-        #result = planner_func(a, b, e, plan_settings)
+        result = planner_func(a, b, e, plan_settings)
         #simple = vamp_module.simplify(result.path, e, simp_settings)
+        path = vamp.panda.traj_to_path(result, 100)
 
         #simple.path.interpolate(vamp.panda.resolution())
         np_path = path.numpy()
         free = vamp.panda.validate_traj(a, b, 3.0, e)
         print("Is the trajectory collision free?: ", free)
         sim.animate(path)
-
 
 if __name__ == "__main__":
     Fire(main)

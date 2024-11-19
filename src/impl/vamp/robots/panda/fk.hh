@@ -11,6 +11,10 @@ namespace vamp::robots::panda
     template <std::size_t rake>
     using ConfigurationBlock = FloatVector<rake, 7>;
 
+    using FlatState = FloatVector<14>;
+    template <std::size_t rake>
+    using ConfigurationBlockFlat = FloatVector<rake, 7>;
+    const float max_vel = 1.0;
     //This is to scale the configuration samples between (0,1) to the min and max angles
     alignas(Configuration::S::Alignment) constexpr std::array<float, 7> s_m_a{
         5.9342f,
@@ -32,12 +36,46 @@ namespace vamp::robots::panda
     const Configuration s_m(s_m_a);
     const Configuration s_a(s_a_a);
 
+    alignas(Configuration::S::Alignment) constexpr std::array<float, 14> s_m_a{
+        5.9342f,
+        3.6652f,
+        5.9342f,
+        3.2289f,
+        5.9342f,
+        3.9095999999999997f,
+        5.9342f, 
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel};
+    alignas(Configuration::S::Alignment) constexpr std::array<float, 14> s_a_a{
+        -2.9671f,
+        -1.8326f,
+        -2.9671f,
+        -3.1416f,
+        -2.9671f,
+        -0.0873f,
+        -2.9671f, 
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel};
+
+    const Configuration s_m(s_m_a);
+    const Configuration s_a(s_a_a);
+
     inline void scale_configuration(Configuration &q) noexcept
     {
         q = q * s_m + s_a;
     }
     //This is to descale from the actual configuration between min and max angles to the configuration samples between (0,1)
-    alignas(Configuration::S::Alignment) constexpr std::array<float, 7> d_m_a{
+    alignas(Configuration::S::Alignment) constexpr std::array<float, 7> d_m_a_flat{
         0.1685147113342995f,
         0.2728364072901888f,
         0.1685147113342995f,
@@ -45,7 +83,7 @@ namespace vamp::robots::panda
         0.1685147113342995f,
         0.25578064252097404f,
         0.1685147113342995f};
-    alignas(Configuration::S::Alignment) constexpr std::array<float, 7> d_s_a{
+    alignas(Configuration::S::Alignment) constexpr std::array<float, 7> d_s_a_flat{
         -2.9671f,
         -1.8326f,
         -2.9671f,
@@ -54,8 +92,13 @@ namespace vamp::robots::panda
         -0.0873f,
         -2.9671f};
 
-    const Configuration d_m(d_m_a);
-    const Configuration d_s(d_s_a);
+    const Configuration d_m_flat(d_m_a);
+    const Configuration d_s_flat(d_s_a);
+
+    inline void scale_flatstate(FlatState &z) noexcept
+    {
+        z = z * s_m_flat + s_a_flat;
+    }
 
     inline void descale_configuration(Configuration &q) noexcept
     {
@@ -86,6 +129,7 @@ namespace vamp::robots::panda
         q[6] = 0.1685147113342995f * (q[6] - -2.9671f);
     }
 
+    // The space volume to calculate the radius for PRM* (optimality)
     inline static auto space_measure() noexcept -> float
     {
         return 878819.1112640093;

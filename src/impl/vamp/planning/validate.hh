@@ -70,7 +70,7 @@ namespace vamp::planning
 
     template <typename Robot, std::size_t rake, std::size_t resolution>
     inline constexpr auto validate_poly(
-        Polynomial<Robot::dimension> &traj,
+        Polynomial<Robot::flat_dimension> &traj,
         float T,
         const collision::Environment<FloatVector<rake>> &environment) -> bool
     {
@@ -125,4 +125,18 @@ namespace vamp::planning
         auto vector = goal - start;
         return validate_vector<Robot, rake, resolution>(start, vector, vector.l2_norm(), environment);
     }
+
+    template <typename Robot, std::size_t rake, std::size_t resolution>
+    inline constexpr auto validate_poly_motion(
+        const typename Robot::ConfigurationFlatState &start,
+        const typename Robot::ConfigurationFlatState &goal,
+        const collision::Environment<FloatVector<rake>> &environment) -> bool
+    {
+        const static float T = 1.5;
+        auto traj = opt_traj<Robot::flat_dimension>(start.row(0), start.row(1), goal.row(0), goal.row(1), T);
+        return validate_poly<Robot, rake, Robot::resolution>(traj, T, environment);
+    }
+
+
+
 }  // namespace vamp::planning

@@ -80,6 +80,11 @@ namespace vamp::planning
             new_path.emplace_back(this->back());
             this->swap(new_path);
         }
+
+        inline auto concat(Path &other) noexcept
+        {
+              this->insert(this->end(), std::make_move_iterator(other.begin()), std::make_move_iterator(other.end()));
+        }
     };
 
     template <std::size_t dim>

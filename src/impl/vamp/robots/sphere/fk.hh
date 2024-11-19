@@ -12,6 +12,12 @@ namespace vamp::robots::sphere
     template <std::size_t rake>
     using ConfigurationBlock = FloatVector<rake, 3>;
 
+
+
+    using ConfigurationFlat = FloatVector<3>;
+    template <std::size_t rake>
+    using ConfigurationBlockFlat = FloatVector<rake, 3>;
+
     // Pad and align vectors for easy loading.
     alignas(FloatVectorAlignment) static std::array<float, FloatVectorWidth> lows{-10, -10, 0};
     alignas(FloatVectorAlignment) static std::array<float, FloatVectorWidth> highs{10, 10, 5};

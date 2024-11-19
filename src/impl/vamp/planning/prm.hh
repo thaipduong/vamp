@@ -71,6 +71,7 @@ namespace vamp::planning
 
             RNG rng;
             std::size_t iter = 0;
+            // Neighbors are pairs of the actual nodes and the distance to the sample
             std::vector<std::pair<NNNode<dimension>, float>> neighbors;
             typename Robot::template ConfigurationBlock<rake> temp_block;
             auto states = std::unique_ptr<float>(
@@ -103,6 +104,7 @@ namespace vamp::planning
                 std::size_t index = nodes.size();
                 auto *goal_state = state_index(index);
                 goal.to_array(goal_state);
+                // Add node with index, component index, distance = infinity
                 nodes.emplace_back(index, index);
                 roadmap.insert(NNNode<dimension>{index, {goal_state}});
                 components.emplace_back(utils::ConnectedComponent{index, 1}); // Add new connected component with parent_idx = start_idx, size = 1
@@ -112,6 +114,7 @@ namespace vamp::planning
 
             while (iter++ < settings.max_iterations and nodes.size() < settings.max_samples)
             {
+                // is temp a configuration?
                 auto temp = rng.next();
                 Robot::scale_configuration(temp);
                 // TODO: This is a gross hack to get around the instruction cache issue...I realized
@@ -119,6 +122,7 @@ namespace vamp::planning
                 // validation API
 
                 // Check sample validity
+                // Does this mean we duplicate the configuration "rake" times and the check the whole thing?
                 for (auto i = 0U; i < dimension; ++i)
                 {
                     temp_block[i] = temp.broadcast(i);
@@ -132,9 +136,11 @@ namespace vamp::planning
                 // Insert valid state into graph structures
                 auto *state = state_index(nodes.size());
                 temp.to_array(state);
+                // Add node with index, component index = MAX_INT
                 auto &node = nodes.emplace_back(nodes.size(), std::numeric_limits<unsigned int>::max());
 
                 // Add valid edges
+                // This is to calculate maximum neighbors and radius for PRMStar
                 const auto k = settings.neighbor_params.max_neighbors(roadmap.size());
                 const auto r = settings.neighbor_params.neighbor_radius(roadmap.size());
                 roadmap.nearest(neighbors, NNFloatArray<dimension>{state}, k, r);
@@ -156,6 +162,8 @@ namespace vamp::planning
                 // Unify connected components
                 if (node.neighbors.empty())
                 {
+                    // Add new component index. Would the index be affected by the merge_components below? The size of the array changes over time?
+                    // Or we keep the empty component as is.
                     node.component = components.size();
                     components.emplace_back(
                         utils::ConnectedComponent{static_cast<unsigned int>(components.size()), 1});

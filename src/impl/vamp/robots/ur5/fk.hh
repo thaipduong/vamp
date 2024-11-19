@@ -11,6 +11,10 @@ namespace vamp::robots::ur5
     template <std::size_t block_width>
     using ConfigurationBlock = FloatVector<block_width, 6>;
 
+    using ConfigurationFlat = FloatVector<6>;
+    template <std::size_t rake>
+    using ConfigurationBlockFlat = FloatVector<rake, 6>;
+
     alignas(Configuration::S::Alignment) constexpr std::array<float, 6> s_m_a{
         6.2831853,
         6.2831853,

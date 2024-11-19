@@ -81,16 +81,25 @@ namespace vamp::binding
     {
         using Configuration = typename Robot::Configuration;
         using ConfigurationArray = typename Robot::ConfigurationArray;
+
+        using ConfigurationFlatState = typename Robot::ConfigurationFlatState;
+        using ConfigurationFlatStateArray = typename Robot::ConfigurationFlatStateArray;
+
         using Path = vamp::planning::Path<Robot::dimension>;
         using PlanningResult = vamp::planning::PlanningResult<Robot::dimension>;
         using Roadmap = vamp::planning::Roadmap<Robot::dimension>;
+
+        using FlatPath = vamp::planning::Path<Robot::flat_dimension>;
+        using FlatPlanningResult = vamp::planning::PlanningResult<Robot::flat_dimension>;
+        using FlatRoadmap = vamp::planning::Roadmap<Robot::flat_dimension>;
 
         using EnvironmentInput = vamp::collision::Environment<float>;
         using EnvironmentVector = vamp::collision::Environment<vamp::FloatVector<rake>>;
 
         using Halton = vamp::rng::Halton<Robot::dimension>;
+        using FlatHalton = vamp::rng::Halton<Robot::flat_order*Robot::flat_dimension>;
         using PRM = vamp::planning::PRM<Robot, Halton, rake, Robot::resolution>;
-        using FlatPRM = vamp::planning::FlatPRM<Robot, Halton, rake, Robot::resolution>;
+        using FlatPRM = vamp::planning::FlatPRM<Robot, FlatHalton, rake, Robot::resolution>;
         using RRTC = vamp::planning::RRTC<Robot, Halton, rake, Robot::resolution>;
 
         inline static auto fk(const ConfigurationArray &configuration)
@@ -151,8 +160,8 @@ namespace vamp::binding
 
         inline static auto
         validate_traj(
-            const ConfigurationArray &start,
-            const ConfigurationArray &goal,
+            const ConfigurationFlatState &start,
+            const ConfigurationFlatState &goal,
             const float &T,
             const EnvironmentInput &environment)
             -> bool
@@ -203,27 +212,42 @@ namespace vamp::binding
                 Configuration(start), Configuration(goal), EnvironmentVector(environment), settings);
         }
         inline static auto flat_prm_single(
-            const ConfigurationArray &start,
-            const ConfigurationArray &goal,
+            const ConfigurationFlatStateArray &start,
+            const ConfigurationFlatStateArray &goal,
             const EnvironmentInput &environment,
             const vamp::planning::RoadmapSettings<vamp::planning::PRMStarNeighborParams> &settings)
             -> PlanningResult
         {
             ;
             return FlatPRM::solve(
-                Configuration(start), Configuration(goal), EnvironmentVector(environment), settings);
+                ConfigurationFlatState(start), ConfigurationFlatState(goal), EnvironmentVector(environment), settings);
         }
 
         inline static auto traj_to_path(
-            const ConfigurationArray &start,
-            const ConfigurationArray &goal,
+            const ConfigurationFlatStateArray &start,
+            const ConfigurationFlatStateArray &goal,
             const float &T,
             const std::size_t &resolution)
             -> Path
         {           
-            auto traj = vamp::planning::opt_traj<Robot::dimension>(
-                Configuration(start), Configuration::zero_vector(), Configuration(goal), Configuration::zero_vector(), T);
+            auto traj = vamp::planning::opt_traj<Robot::flat_dimension>(
+                ConfigurationFlatState(start), ConfigurationFlatState(goal), T);
             return traj.to_path(T, resolution);
+        }
+
+        inline static auto flatresult_to_path(
+            const FlatPath &flatpath,
+            const float &T,
+            const std::size_t &resolution) -> Path
+        {
+            Path path;
+            for (auto i = 0U; i < flatpath.size() - 2; ++i)
+            {
+                auto traj = vamp::planning::opt_traj<Robot::flat_dimension>(start, goal, T);
+                auto sub_path = traj.to_path(T, resolution);
+                path.concat(sub_path);
+            }
+            return path;
         }
 
         inline static auto
@@ -246,13 +270,13 @@ namespace vamp::binding
         }
 
         inline static auto
-        flat_prm(const ConfigurationArray &start,
-            const std::vector<ConfigurationArray> &goals,
+        flat_prm(const ConfigurationFlatStateArray &start,
+            const std::vector<ConfigurationFlatStateArray> &goals,
             const EnvironmentInput &environment,
             const vamp::planning::RoadmapSettings<vamp::planning::PRMStarNeighborParams> &settings)
             -> PlanningResult
         {
-            std::vector<Configuration> goals_v;
+            std::vector<ConfigurationFlatState> goals_v;
             goals_v.reserve(goals.size());
 
             for (const auto &goal : goals)
@@ -260,7 +284,7 @@ namespace vamp::binding
                 goals_v.emplace_back(goal);
             }
 
-            const Configuration start_v(start);
+            const ConfigurationFlatState start_v(start);
             return FlatPRM::solve(start_v, goals_v, EnvironmentVector(environment), settings);
         }
 
@@ -328,6 +352,10 @@ namespace vamp::binding
             "dimension",
             []() { return Robot::dimension; },
             "Dimension of configuration space for this robot.");
+        submodule.def(
+            "flat_dimension",
+            []() { return Robot::flat_dimension; },
+            "Flat output dimension of configuration space for this robot.");
         submodule.def(
             "resolution",
             []() { return Robot::resolution; },
@@ -559,6 +587,14 @@ namespace vamp::binding
             "T"_a,
             "resolution"_a,
             "Generate a path from a polynomial trajectory to visualize.");
+        
+        submodule.def(
+            "flatresult_to_path",
+            RH::simplify,
+            "flatpath"_a,
+            "T"_a,
+            "resolution"_a,
+            "Generate a path in configuration space from a piecewise-polynomial trajectory in flat space to visualize.");
 
         submodule.def(
             "roadmap",

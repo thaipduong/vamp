@@ -897,14 +897,28 @@ namespace vamp
         [[nodiscard]] inline constexpr auto row(std::size_t idx) const noexcept -> RowT
         {
             return RowT(*reinterpret_cast<const std::array<typename S::VectorT, num_vectors_per_row> *>(
-                data.data() + idx));
+                data.data() + idx*num_vectors_per_row));
         }
 
         [[nodiscard]] inline constexpr auto row(std::size_t idx) noexcept -> RowT &
         {
             return *reinterpret_cast<RowT *>(
-                reinterpret_cast<std::array<typename S::VectorT, num_vectors_per_row> *>(data.data() + idx));
+                reinterpret_cast<std::array<typename S::VectorT, num_vectors_per_row> *>(data.data() + idx*num_vectors_per_row));
         }
+
+        [[nodiscard]] inline constexpr auto reshape(std::size_t row, std::size_t col) noexcept -> RowT &
+        {
+            assert(row*col == num_scalars);
+            return *reinterpret_cast<Vector<S, row, col> *>(
+                reinterpret_cast<std::array<typename S::VectorT, num_scalars> *>(data.data());
+        }
+
+        [[nodiscard]] inline constexpr auto flatten() noexcept -> RowT &
+        {
+            return *reinterpret_cast<Vector<S, 1, num_scalars> *>(
+                reinterpret_cast<std::array<typename S::VectorT, num_scalars> *>(data.data());
+        }        
+
 //*num_vectors_per_row
         inline constexpr auto operator[](std::size_t idx) const noexcept -> RowT
         {

@@ -9,13 +9,17 @@ namespace vamp::robots
     {
         static constexpr auto name = "panda";
         static constexpr auto dimension = 7;
+        static constexpr auto flat_dimension = 7;
+        static constexpr auto flat_order = 2;
         static constexpr auto resolution = 32;
         static constexpr auto n_spheres = panda::n_spheres;
         static constexpr auto space_measure = panda::space_measure;
 
         using Configuration = FloatVector<dimension>;
         using ConfigurationArray = std::array<FloatT, dimension>;
-        using ConfigurationFlat = std::array<FloatT, 2*dimension>;
+        using ConfigurationFlat = FloatVector<flat_dimension>;
+        using ConfigurationFlatState = FloatVector<flat_dimension, flat_order>;
+        using ConfigurationFlatStateArray = std::array<FloatT, flat_order*flat_dimension>;
 
         struct alignas(FloatVectorAlignment) ConfigurationBuffer
           : std::array<float, Configuration::num_scalars_rounded>

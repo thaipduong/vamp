@@ -29,11 +29,11 @@ problem = [
     [0, -0.55, 0.8],
     [0.35, -0.35, 0.8],
     ]
-
+problem = [[0.35, -0.35, 0.8]]
 
 def main(
     variation: float = 0.01,
-    benchmark: bool = True,
+    benchmark: bool = False,
     n_trials: int = 100,
     radius: float = 0.2,
     visualize: bool = True,

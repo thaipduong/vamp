@@ -168,9 +168,17 @@ namespace vamp::binding
         {           
             auto flat_start = ConfigurationFlatState(start);    
             auto flat_goal = ConfigurationFlatState(goal);
+            auto start_time = std::chrono::steady_clock::now();
             auto traj = vamp::planning::opt_traj<Robot::dimension>(flat_start.row(0), flat_start.row(1), flat_goal.row(0), flat_goal.row(1), T);
-            return vamp::planning::validate_poly<Robot, rake, Robot::resolution>(
+            auto nanoseconds = vamp::utils::get_elapsed_nanoseconds(start_time);
+            std::cout << "Trajectory generation time: " << nanoseconds << "ns" << std::endl;
+
+            start_time = std::chrono::steady_clock::now();
+            auto ret = vamp::planning::validate_poly<Robot, rake, Robot::resolution>(
                 traj, T, EnvironmentVector(environment));
+            nanoseconds = vamp::utils::get_elapsed_nanoseconds(start_time);
+            std::cout << "Trajectory collision checking time: " << nanoseconds << "ns" << std::endl;
+            return ret;
         }
 
         inline static auto rrtc_single(

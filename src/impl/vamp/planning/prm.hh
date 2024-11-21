@@ -56,6 +56,10 @@ namespace vamp::planning
             // Check if the straight-line solution is valid
             for (const auto &goal : goals)
             {
+                auto cc_start_time = std::chrono::steady_clock::now();
+                validate_motion<Robot, rake, resolution>(start, goal, environment);
+                auto cc_nanoseconds = vamp::utils::get_elapsed_nanoseconds(cc_start_time);
+                std::cout << "Collision checking time: " << cc_nanoseconds << "ns" << std::endl;
                 if (validate_motion<Robot, rake, resolution>(start, goal, environment))
                 {
                     result.path.emplace_back(start);

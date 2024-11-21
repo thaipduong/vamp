@@ -123,7 +123,8 @@ namespace vamp::planning
         const collision::Environment<FloatVector<rake>> &environment) -> bool
     {
         auto vector = goal - start;
-        return validate_vector<Robot, rake, resolution>(start, vector, vector.l2_norm(), environment);
+        auto ret = validate_vector<Robot, rake, resolution>(start, vector, vector.l2_norm(), environment);
+        return  ret;
     }
 
     template <typename Robot, std::size_t rake, std::size_t resolution>

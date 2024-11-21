@@ -160,13 +160,15 @@ namespace vamp::binding
 
         inline static auto
         validate_traj(
-            const ConfigurationFlatState &start,
-            const ConfigurationFlatState &goal,
+            const ConfigurationFlatStateArray &start,
+            const ConfigurationFlatStateArray &goal,
             const float &T,
             const EnvironmentInput &environment)
             -> bool
         {           
-            auto traj = vamp::planning::opt_traj<Robot::dimension>(start.row(0), start.row(1), goal.row(0), goal.row(1), T);
+            auto flat_start = ConfigurationFlatState(start);    
+            auto flat_goal = ConfigurationFlatState(goal);
+            auto traj = vamp::planning::opt_traj<Robot::dimension>(flat_start.row(0), flat_start.row(1), flat_goal.row(0), flat_goal.row(1), T);
             return vamp::planning::validate_poly<Robot, rake, Robot::resolution>(
                 traj, T, EnvironmentVector(environment));
         }

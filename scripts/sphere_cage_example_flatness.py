@@ -12,6 +12,12 @@ a = [0., -0.785, 0., -2.356, 0., 1.571, 0.785]
 # Goal configuration
 b = [2.35, 1., 0., -0.8, 0, 2.5, 0.785]
 
+# Starting configuration
+a_flat = [0., -0.785, 0., -2.356, 0., 1.571, 0.785, 0., 0., 0., 0., 0., 0., 0.]
+
+# Goal configuration
+b_flat = [2.35, 1., 0., -0.8, 0, 2.5, 0.785, 0., 0., 0., 0., 0., 0., 0.]
+
 # Problem specification: a list of sphere centers
 problem = [
     [0.55, 0, 0.25],
@@ -98,14 +104,14 @@ def main(
             sim.add_sphere(radius, sphere)
 
         
-        path = vamp.panda.traj_to_path(a, b, 3.0, 100)
-        result = planner_func(a, b, e, plan_settings)
+        path = vamp.panda.traj_to_path(a_flat, b_flat, 3.0, 100)
+        #result = planner_func(a, b, e, plan_settings)
         #simple = vamp_module.simplify(result.path, e, simp_settings)
-        path = vamp.panda.traj_to_path(result, 100)
+        #path = vamp.panda.traj_to_path(result, 100)
 
         #simple.path.interpolate(vamp.panda.resolution())
         np_path = path.numpy()
-        free = vamp.panda.validate_traj(a, b, 3.0, e)
+        free = vamp.panda.validate_traj(a_flat, b_flat, 3.0, e)
         print("Is the trajectory collision free?: ", free)
         sim.animate(path)
 

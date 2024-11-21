@@ -906,17 +906,17 @@ namespace vamp
                 reinterpret_cast<std::array<typename S::VectorT, num_vectors_per_row> *>(data.data() + idx*num_vectors_per_row));
         }
 
-        [[nodiscard]] inline constexpr auto reshape(std::size_t row, std::size_t col) noexcept -> RowT &
-        {
-            assert(row*col == num_scalars);
-            return *reinterpret_cast<Vector<S, row, col> *>(
-                reinterpret_cast<std::array<typename S::VectorT, num_scalars> *>(data.data());
-        }
+        // [[nodiscard]] inline constexpr auto reshape(const std::size_t row, const std::size_t col) noexcept -> RowT &
+        // {
+        //     assert(row*col == num_scalars);
+        //     return *reinterpret_cast<Vector<S, row, col> *>(
+        //         reinterpret_cast<std::array<typename S::VectorT, num_scalars> *>(data.data()));
+        // }
 
         [[nodiscard]] inline constexpr auto flatten() noexcept -> RowT &
         {
             return *reinterpret_cast<Vector<S, 1, num_scalars> *>(
-                reinterpret_cast<std::array<typename S::VectorT, num_scalars> *>(data.data());
+                reinterpret_cast<std::array<typename S::VectorT, num_scalars> *>(data.data()));
         }        
 
 //*num_vectors_per_row

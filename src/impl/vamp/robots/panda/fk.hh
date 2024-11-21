@@ -35,8 +35,15 @@ namespace vamp::robots::panda
 
     const Configuration s_m(s_m_a);
     const Configuration s_a(s_a_a);
+    
+    inline void scale_configuration(Configuration &q) noexcept
+    {
+        q = q * s_m + s_a;
+    }
 
-    alignas(Configuration::S::Alignment) constexpr std::array<float, 14> s_m_a{
+
+
+    alignas(Configuration::S::Alignment) constexpr std::array<float, 14> s_m_a_flat{
         5.9342f,
         3.6652f,
         5.9342f,
@@ -51,7 +58,7 @@ namespace vamp::robots::panda
         max_vel,
         max_vel,
         max_vel};
-    alignas(Configuration::S::Alignment) constexpr std::array<float, 14> s_a_a{
+    alignas(Configuration::S::Alignment) constexpr std::array<float, 14> s_a_a_flat{
         -2.9671f,
         -1.8326f,
         -2.9671f,
@@ -67,15 +74,18 @@ namespace vamp::robots::panda
         -max_vel,
         -max_vel};
 
-    const Configuration s_m(s_m_a);
-    const Configuration s_a(s_a_a);
+    const FlatState s_m_flat(s_m_a_flat);
+    const FlatState s_a_flat(s_a_a_flat);
 
-    inline void scale_configuration(Configuration &q) noexcept
+
+
+    inline void scale_flatstate(FlatState &z) noexcept
     {
-        q = q * s_m + s_a;
+        z = z * s_m_flat + s_a_flat;
     }
+
     //This is to descale from the actual configuration between min and max angles to the configuration samples between (0,1)
-    alignas(Configuration::S::Alignment) constexpr std::array<float, 7> d_m_a_flat{
+    alignas(Configuration::S::Alignment) constexpr std::array<float, 7> d_m_a{
         0.1685147113342995f,
         0.2728364072901888f,
         0.1685147113342995f,
@@ -83,7 +93,7 @@ namespace vamp::robots::panda
         0.1685147113342995f,
         0.25578064252097404f,
         0.1685147113342995f};
-    alignas(Configuration::S::Alignment) constexpr std::array<float, 7> d_s_a_flat{
+    alignas(Configuration::S::Alignment) constexpr std::array<float, 7> d_s_a{
         -2.9671f,
         -1.8326f,
         -2.9671f,
@@ -92,13 +102,9 @@ namespace vamp::robots::panda
         -0.0873f,
         -2.9671f};
 
-    const Configuration d_m_flat(d_m_a);
-    const Configuration d_s_flat(d_s_a);
+    const Configuration d_m(d_m_a);
+    const Configuration d_s(d_s_a);
 
-    inline void scale_flatstate(FlatState &z) noexcept
-    {
-        z = z * s_m_flat + s_a_flat;
-    }
 
     inline void descale_configuration(Configuration &q) noexcept
     {

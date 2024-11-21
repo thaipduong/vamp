@@ -166,8 +166,7 @@ namespace vamp::binding
             const EnvironmentInput &environment)
             -> bool
         {           
-            auto traj = vamp::planning::opt_traj<Robot::dimension>(
-                Configuration(start), Configuration::zero_vector(), Configuration(goal), Configuration::zero_vector(), T);
+            auto traj = vamp::planning::opt_traj<Robot::dimension>(start.row(0), start.row(1), goal.row(0), goal.row(1), T);
             return vamp::planning::validate_poly<Robot, rake, Robot::resolution>(
                 traj, T, EnvironmentVector(environment));
         }
@@ -229,9 +228,11 @@ namespace vamp::binding
             const float &T,
             const std::size_t &resolution)
             -> Path
-        {           
+        {       
+            auto flat_start = ConfigurationFlatState(start);    
+            auto flat_goal = ConfigurationFlatState(goal);
             auto traj = vamp::planning::opt_traj<Robot::flat_dimension>(
-                ConfigurationFlatState(start), ConfigurationFlatState(goal), T);
+                flat_start.row(0),flat_start.row(1), flat_goal.row(0),flat_goal.row(1), T);
             return traj.to_path(T, resolution);
         }
 
@@ -243,7 +244,7 @@ namespace vamp::binding
             Path path;
             for (auto i = 0U; i < flatpath.size() - 2; ++i)
             {
-                auto traj = vamp::planning::opt_traj<Robot::flat_dimension>(start, goal, T);
+                auto traj = vamp::planning::opt_traj<Robot::flat_dimension>(flatpath[i], flatpath[i+1], T);
                 auto sub_path = traj.to_path(T, resolution);
                 path.concat(sub_path);
             }

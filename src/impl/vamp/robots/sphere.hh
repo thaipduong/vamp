@@ -11,6 +11,7 @@ namespace vamp::robots
         static constexpr auto dimension = 3;
         static constexpr auto flat_dimension = 3;
         static constexpr auto flat_order = 2;
+        static constexpr auto flatstate_dimension = flat_dimension*flat_order;
         static constexpr auto resolution = 32;
         static constexpr auto n_spheres = sphere::n_spheres;
         static constexpr auto space_measure = sphere::space_measure;
@@ -19,7 +20,7 @@ namespace vamp::robots
         using ConfigurationArray = std::array<FloatT, dimension>;
         using ConfigurationFlat = FloatVector<flat_dimension>;
         using ConfigurationFlatState = FloatVector<flat_dimension, flat_order>;
-        using ConfigurationFlatStateArray = std::array<FloatT, flat_order*flat_dimension>;
+        using ConfigurationFlatStateArray = std::array<FloatT, flatstate_dimension>;
         
 
         struct alignas(FloatVectorAlignment) ConfigurationBuffer

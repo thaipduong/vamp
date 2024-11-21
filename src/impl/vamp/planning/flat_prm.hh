@@ -30,9 +30,9 @@ namespace vamp::planning
     struct FlatPRM
     {
         static constexpr auto flat_dimension = Robot::flat_dimension;
-        static constexpr auto flatstate_dimension = Robot::flat_order * Robot::flat_dimension;
+        static constexpr auto flatstate_dimension = Robot::flatstate_dimension;
         using ConfigurationFlat = typename Robot::ConfigurationFlat;
-        using FlatState = Robot::ConfigurationFlatState; // The first row is y, the second row is y_dot
+        using FlatState = typename Robot::ConfigurationFlatState; // The first row is y, the second row is y_dot
 
 
         inline static auto solve(
@@ -41,12 +41,12 @@ namespace vamp::planning
             const collision::Environment<FloatVector<rake>> &environment,
             const RoadmapSettings<NeighborParamsT> &settings) noexcept -> PlanningResult<flatstate_dimension>
         {
-            return solve(flat_start, std::vector<FlatState>{flat_goal}, environment, settings);
+            return solve(start, std::vector<FlatState>{goal}, environment, settings);
         }
 
         inline static auto solve(
-            const FlatState &flat_start,
-            const std::vector<FlatState> &flat_goals,
+            const FlatState &start,
+            const std::vector<FlatState> &goals,
             const collision::Environment<FloatVector<rake>> &environment,
             const RoadmapSettings<NeighborParamsT> &settings) noexcept -> PlanningResult<flatstate_dimension>
         {
@@ -62,7 +62,7 @@ namespace vamp::planning
             for (const auto &goal : goals)
             {
                 // if (validate_motion<Robot, rake, resolution>(start, goal, environment))
-                if (validate_poly_motion<Robot, rake, resolution>(flat_start, flat_goal, environment))
+                if (validate_poly_motion<Robot, rake, resolution>(start, goal, environment))
                 {
                     result.path.emplace_back(start);
                     result.path.emplace_back(goal);
@@ -147,8 +147,7 @@ namespace vamp::planning
                 roadmap.nearest(neighbors, NNFloatArray<flatstate_dimension>{state}, k, r);
                 for (const auto &[neighbor, distance] : neighbors)
                 {
-                    if (validate_poly_motion<Robot, rake, resolution>(neighbor.as_vector().reshape(Robot::flat_order, Robot::flat_dimension), 
-                                                                      temp.reshape(Robot::flat_order, Robot::flat_dimension),
+                    if (validate_poly_motion<Robot, rake, resolution>(FlatState(neighbor.as_vector().data.data()), FlatState(temp.data.data()),
                                                                       environment))
                     {
                         node.neighbors.emplace_back(typename RoadmapNode::Neighbor{
@@ -191,7 +190,7 @@ namespace vamp::planning
                     auto parents = utils::astar(nodes, start, goal, state_index);
                     // NOTE: If the connected component check is correct, we can assume that a solution
                     // was found by A* when we've reached this point
-                    utils::recover_path<Configuration>(std::move(parents), state_index, result.path);
+                    utils::recover_path<FlatState>(std::move(parents), state_index, result.path);
                     result.cost = nodes[i].g;
                     result.nanoseconds = vamp::utils::get_elapsed_nanoseconds(start_time);
                     result.iterations = iter;
@@ -209,8 +208,8 @@ namespace vamp::planning
         }
 
         inline static auto build_roadmap(
-            const Configuration &start,
-            const Configuration &goal,
+            const FlatState &start,
+            const FlatState &goal,
             const collision::Environment<FloatVector<rake>> &environment,
             const RoadmapSettings<NeighborParamsT> &settings) noexcept -> Roadmap<flatstate_dimension>
         {
@@ -227,7 +226,7 @@ namespace vamp::planning
             typename Robot::template ConfigurationBlock<rake> temp_block;
             auto states = std::unique_ptr<float, decltype(&free)>(
                 vamp::utils::vector_alloc<float, FloatVectorAlignment, FloatVectorWidth>(
-                    settings.max_samples * Configuration::num_scalars_rounded),
+                    settings.max_samples * FlatState::num_scalars_rounded),
                 &free);
             // TODO: Is it better to just use arrays for these since we're reserving full capacity
             // anyway? Test it!
@@ -235,7 +234,7 @@ namespace vamp::planning
             nodes.reserve(settings.max_samples);
 
             const auto state_index = [&states](unsigned int index) -> float *
-            { return states.get() + index * Configuration::num_scalars_rounded; };
+            { return states.get() + index * FlatState::num_scalars_rounded; };
 
             // Add start and goal to structures
             start.to_array(state_index(start_index));
@@ -249,7 +248,7 @@ namespace vamp::planning
             while (iter++ < settings.max_iterations and nodes.size() < settings.max_samples)
             {
                 auto temp = rng.next();
-                Robot::scale_configuration(temp);
+                Robot::scale_flatstate(temp);
 
                 // TODO: This is a gross hack to get around the instruction cache issue...I realized
                 // that edge sampling, while valid, wastes too much effort with our current

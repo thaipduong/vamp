@@ -132,7 +132,7 @@ namespace vamp::planning
         const typename Robot::ConfigurationFlatState &goal,
         const collision::Environment<FloatVector<rake>> &environment) -> bool
     {
-        const static float T = 1.5;
+        const float T = 1.5;
         auto traj = opt_traj<Robot::flat_dimension>(start.row(0), start.row(1), goal.row(0), goal.row(1), T);
         return validate_poly<Robot, rake, Robot::resolution>(traj, T, environment);
     }

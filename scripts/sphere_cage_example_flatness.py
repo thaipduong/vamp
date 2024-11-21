@@ -37,7 +37,7 @@ problem = [
     ]
 
 #problem = [[0.35, 0.35, 0.8]]
-#problem = [[0.35, -0.35, 0.8]]
+problem = [[0.35, -0.35, 0.8]]
 
 
 def main(

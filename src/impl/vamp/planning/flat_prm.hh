@@ -146,8 +146,10 @@ namespace vamp::planning
                 const auto r = settings.neighbor_params.neighbor_radius(roadmap.size());
                 roadmap.nearest(neighbors, NNFloatArray<flatstate_dimension>{state}, k, r);
                 for (const auto &[neighbor, distance] : neighbors)
-                {
-                    if (validate_poly_motion<Robot, rake, resolution>(FlatState(neighbor.as_vector().data.data()), FlatState(temp.data.data()),
+                {   
+                    FlatState flat_nb(neighbors.as_vector().to_array());
+                    FlatState flat_temp(reinterpret_cast<typename FlatState::DataT>(temp.data));
+                    if (validate_poly_motion<Robot, rake, resolution>(flat_nb, flat_temp,
                                                                       environment))
                     {
                         node.neighbors.emplace_back(typename RoadmapNode::Neighbor{

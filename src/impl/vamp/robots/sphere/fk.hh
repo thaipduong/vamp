@@ -14,9 +14,10 @@ namespace vamp::robots::sphere
 
 
 
-    using ConfigurationFlat = FloatVector<3>;
+    using FlatState = FloatVector<6>;
     template <std::size_t rake>
     using ConfigurationBlockFlat = FloatVector<rake, 3>;
+    const float max_vel = 1.0;
 
     // Pad and align vectors for easy loading.
     alignas(FloatVectorAlignment) static std::array<float, FloatVectorWidth> lows{-10, -10, 0};
@@ -44,6 +45,20 @@ namespace vamp::robots::sphere
         Configuration chigh(highs.data());
 
         q = q * (chigh - clow) + clow;
+    }
+
+
+    alignas(FloatVectorAlignment) static std::array<float, FloatVectorWidth> lows_flat{-10, -10, 0, max_vel, max_vel, max_vel};
+    alignas(FloatVectorAlignment) static std::array<float, FloatVectorWidth> highs_flat{10, 10, 5, -max_vel, -max_vel, -max_vel};
+
+
+
+
+    inline void scale_flatstate(FlatState &z) noexcept
+    {
+        FlatState clow_flat(lows_flat.data());
+        FlatState chigh_flat(highs_flat.data());
+        z = z * (chigh_flat - clow_flat) + clow_flat;
     }
 
     inline void descale_configuration(Configuration &q) noexcept

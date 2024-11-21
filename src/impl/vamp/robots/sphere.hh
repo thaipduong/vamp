@@ -36,6 +36,7 @@ namespace vamp::robots
 
         static constexpr auto scale_configuration = sphere::scale_configuration;
         static constexpr auto descale_configuration = sphere::descale_configuration;
+        static constexpr auto scale_flatstate = sphere::scale_flatstate;
 
         template <std::size_t rake>
         static constexpr auto scale_configuration_block = sphere::scale_configuration_block<rake>;

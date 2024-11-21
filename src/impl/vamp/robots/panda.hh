@@ -35,6 +35,7 @@ namespace vamp::robots
 
         static constexpr auto scale_configuration = panda::scale_configuration;
         static constexpr auto descale_configuration = panda::descale_configuration;
+        static constexpr auto scale_flatstate = panda::scale_flatstate;
 
         template <std::size_t rake>
         static constexpr auto scale_configuration_block = panda::scale_configuration_block<rake>;

@@ -90,8 +90,8 @@ namespace vamp::binding
         using Roadmap = vamp::planning::Roadmap<Robot::dimension>;
 
         using FlatPath = vamp::planning::Path<Robot::flat_dimension>;
-        using FlatPlanningResult = vamp::planning::PlanningResult<Robot::flat_dimension>;
-        using FlatRoadmap = vamp::planning::Roadmap<Robot::flat_dimension>;
+        using FlatPlanningResult = vamp::planning::PlanningResult<Robot::flatstate_dimension>;
+        using FlatRoadmap = vamp::planning::Roadmap<Robot::flatstate_dimension>;
 
         using EnvironmentInput = vamp::collision::Environment<float>;
         using EnvironmentVector = vamp::collision::Environment<vamp::FloatVector<rake>>;
@@ -225,7 +225,7 @@ namespace vamp::binding
             const ConfigurationFlatStateArray &goal,
             const EnvironmentInput &environment,
             const vamp::planning::RoadmapSettings<vamp::planning::PRMStarNeighborParams> &settings)
-            -> PlanningResult
+            -> FlatPlanningResult
         {
             ;
             return FlatPRM::solve(
@@ -237,7 +237,7 @@ namespace vamp::binding
             const ConfigurationFlatStateArray &goal,
             const float &T,
             const std::size_t &resolution)
-            -> Path
+            -> FlatPath
         {       
             auto flat_start = ConfigurationFlatState(start);    
             auto flat_goal = ConfigurationFlatState(goal);
@@ -249,9 +249,9 @@ namespace vamp::binding
         inline static auto flatresult_to_path(
             const FlatPath &flatpath,
             const float &T,
-            const std::size_t &resolution) -> Path
+            const std::size_t &resolution) -> FlatPath
         {
-            Path path;
+            FlatPath path;
             for (auto i = 0U; i < flatpath.size() - 2; ++i)
             {
                 auto traj = vamp::planning::opt_traj<Robot::flat_dimension>(flatpath[i], flatpath[i+1], T);
@@ -285,7 +285,7 @@ namespace vamp::binding
             const std::vector<ConfigurationFlatStateArray> &goals,
             const EnvironmentInput &environment,
             const vamp::planning::RoadmapSettings<vamp::planning::PRMStarNeighborParams> &settings)
-            -> PlanningResult
+            -> FlatPlanningResult
         {
             std::vector<ConfigurationFlatState> goals_v;
             goals_v.reserve(goals.size());

@@ -93,4 +93,41 @@ namespace vamp::planning
         NNNodeKey<dimension>,  //
         nigh::NoThreadSafety,  //
         nigh::KDTreeBatch<batch>>;
+
+    ///////////////////////////////////////////////////// Flat NN ///////////////////////////////////////////////////
+
+    template <std::size_t flat_dim, std::size_t order = 2>
+    struct NNFlatNode
+    {
+        std::size_t index;
+        NNFloatArray<flat_dim*order> array;
+
+        [[nodiscard]] inline auto as_vectors() const noexcept -> std::vector<FloatVector<dimension>>
+        {
+            std::vector<FloatVector<dimension>> ret;
+            for (int i = 0; i < order; i++)
+            {
+                ret.emplace_back(FloatVector<dimension>(array.v[i*flat_dim]))
+            }
+            return ret;
+        }
+    };
+
+    template <std::size_t flat_dim, std::size_t order = 2>
+    struct NNFlatNodeKey
+    {
+        inline auto operator()(const NNFlatNode<flat_dim, order> &node) const noexcept
+            -> const NNFloatArray<flat_dim*order> &
+        {
+            return node.array;
+        }
+    };
+
+    template <std::size_t flat_dim, std::size_t order = 2, std::size_t batch = 128>
+    using FlatNN = nigh::Nigh<
+        NNNode<flat_dim, order>,     //
+        Space<dimension*order>,      //
+        NNNodeKey<flat_dim, order>,  //
+        nigh::NoThreadSafety,  //
+        nigh::KDTreeBatch<batch>>;
 }  // namespace vamp::planning

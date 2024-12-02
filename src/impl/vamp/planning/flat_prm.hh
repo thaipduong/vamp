@@ -30,6 +30,7 @@ namespace vamp::planning
     struct FlatPRM
     {
         static constexpr auto flat_dimension = Robot::flat_dimension;
+        static constexpr auto flat_order = Robot::flat_order;
         static constexpr auto flatstate_dimension = Robot::flatstate_dimension;
         using ConfigurationFlat = typename Robot::ConfigurationFlat;
         using FlatState = typename Robot::ConfigurationFlatState; // The first row is y, the second row is y_dot
@@ -52,7 +53,7 @@ namespace vamp::planning
         {
             PlanningResult<flatstate_dimension> result;
 
-            NN<flatstate_dimension> roadmap;
+            FlatNN<flatstate_dimension> roadmap;
 
             auto start_time = std::chrono::steady_clock::now();
 
@@ -77,7 +78,7 @@ namespace vamp::planning
 
             RNG rng;
             std::size_t iter = 0;
-            std::vector<std::pair<NNNode<flatstate_dimension>, float>> neighbors;
+            std::vector<std::pair<NNFlatNode<flat_dimension, flat_order>, float>> neighbors;
             typename Robot::template ConfigurationBlock<rake> temp_block;
             auto states = std::unique_ptr<float>(
                 vamp::utils::vector_alloc<float, FloatVectorAlignment, FloatVectorWidth>(
@@ -98,7 +99,7 @@ namespace vamp::planning
             auto *start_state = state_index(start_index);
             start.to_array(start_state);
             nodes.emplace_back(start_index, start_index, 0.0);
-            roadmap.insert(NNNode<flatstate_dimension>{start_index, {start_state}});
+            roadmap.insert(NNFlatNode<flat_dimension, flat_order>{start_index, {start_state}});
             components.emplace_back(utils::ConnectedComponent{start_index, 1});
 
             for (const auto &goal : goals)
@@ -107,7 +108,7 @@ namespace vamp::planning
                 auto *goal_state = state_index(index);
                 goal.to_array(goal_state);
                 nodes.emplace_back(index, index);
-                roadmap.insert(NNNode<flatstate_dimension>{index, {goal_state}});
+                roadmap.insert(NNFlatNode<flat_dimension, flat_order>{index, {goal_state}});
                 components.emplace_back(utils::ConnectedComponent{index, 1});
             }
 
@@ -142,13 +143,15 @@ namespace vamp::planning
                 auto &node = nodes.emplace_back(nodes.size(), std::numeric_limits<unsigned int>::max());
 
                 // Add valid edges
+                // TODO: Start a struct "FlatNeighbor" that converts two SimD vectors to one flat vector for the kd tree,
+                // and converts a node in the kd tree back to 2 SimD vectors, one for config, one for vel.
                 const auto k = settings.neighbor_params.max_neighbors(roadmap.size());
                 const auto r = settings.neighbor_params.neighbor_radius(roadmap.size());
                 roadmap.nearest(neighbors, NNFloatArray<flatstate_dimension>{state}, k, r);
                 for (const auto &[neighbor, distance] : neighbors)
                 {   
-                    FlatState flat_nb(neighbors.as_vector().to_array());
-                    FlatState flat_temp(reinterpret_cast<typename FlatState::DataT>(temp.data));
+                    auto flat_nb = neighbor.as_vector();
+                    auto flat_temp = state.as_vector();
                     if (validate_poly_motion<Robot, rake, resolution>(flat_nb, flat_temp,
                                                                       environment))
                     {
@@ -161,7 +164,7 @@ namespace vamp::planning
 
                 // Insert valid state into roadmap - after query to prevent returning self as
                 // neighbor
-                roadmap.insert(NNNode<flatstate_dimension>{node.index, {state}});
+                roadmap.insert(NNFlatNode<flat_dimension, flat_order>{node.index, {state}});
 
                 // Unify connected components
                 if (node.neighbors.empty())

@@ -51,13 +51,13 @@ namespace vamp::robots::panda
         5.9342f,
         3.9095999999999997f,
         5.9342f, 
-        max_vel,
-        max_vel,
-        max_vel,
-        max_vel,
-        max_vel,
-        max_vel,
-        max_vel};
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel};
     alignas(Configuration::S::Alignment) constexpr std::array<float, 14> s_a_a_flat{
         -2.9671f,
         -1.8326f,
@@ -66,13 +66,13 @@ namespace vamp::robots::panda
         -2.9671f,
         -0.0873f,
         -2.9671f, 
-        -max_vel,
-        -max_vel,
-        -max_vel,
-        -max_vel,
-        -max_vel,
-        -max_vel,
-        -max_vel};
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel};
 
     const FlatState s_m_flat(s_m_a_flat);
     const FlatState s_a_flat(s_a_a_flat);

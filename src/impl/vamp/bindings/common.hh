@@ -572,7 +572,7 @@ namespace vamp::binding
 
         submodule.def(
             "flat_prm",
-            RH::prm_single,
+            RH::flat_prm_single,
             "start"_a,
             "goal"_a,
             "environment"_a,
@@ -582,7 +582,7 @@ namespace vamp::binding
 
         submodule.def(
             "flat_prm",
-            RH::prm,
+            RH::flat_prm,
             "start"_a,
             "goal"_a,
             "environment"_a,

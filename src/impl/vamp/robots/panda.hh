@@ -18,9 +18,10 @@ namespace vamp::robots
 
         using Configuration = FloatVector<dimension>;
         using ConfigurationArray = std::array<FloatT, dimension>;
-        using ConfigurationFlat = FloatVector<flat_dimension>;
-        using ConfigurationFlatState = std::array<FloatVector<flat_dimension>, flat_order>;
-        using ConfigurationFlatStateArray = std::array<std::array<FloatT, flat_dimension>, flat_order>;
+        using ConfigurationFlat = FloatVector<flat_dimension>; // Flat output
+        using ConfigurationFlatState = FloatVector<flatstate_dimension>; // Flat state (flat output + its derivatives)
+        using ConfigurationFlatStateVecArray = std::array<FloatVector<flat_dimension>, flat_order>; // For trajectory generation, should be merged with FlatState later
+        using ConfigurationFlatStateArray = std::array<std::array<FloatT, flat_dimension>, flat_order>; // This is for pybinding
 
         struct alignas(FloatVectorAlignment) ConfigurationBuffer
           : std::array<float, Configuration::num_scalars_rounded>

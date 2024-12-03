@@ -129,8 +129,8 @@ namespace vamp::planning
 
     template <typename Robot, std::size_t rake, std::size_t resolution>
     inline constexpr auto validate_poly_motion(
-        const typename Robot::ConfigurationFlatState &start,
-        const typename Robot::ConfigurationFlatState &goal,
+        const typename Robot::ConfigurationFlatStateVecArray &start,
+        const typename Robot::ConfigurationFlatStateVecArray &goal,
         const collision::Environment<FloatVector<rake>> &environment) -> bool
     {
         const float T = 1.5;

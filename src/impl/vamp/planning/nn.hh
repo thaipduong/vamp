@@ -96,18 +96,18 @@ namespace vamp::planning
 
     ///////////////////////////////////////////////////// Flat NN ///////////////////////////////////////////////////
 
-    template <std::size_t flat_dim, std::size_t order = 2>
+    template <std::size_t flat_dim, std::size_t flat_order = 2>
     struct NNFlatNode
     {
         std::size_t index;
         NNFloatArray<flat_dim*order> array;
 
-        [[nodiscard]] inline auto as_vectors() const noexcept -> std::vector<FloatVector<dimension>>
+        [[nodiscard]] inline auto as_vectors() const noexcept -> std::array<FloatVector<dimension>, flat_order>
         {
-            std::vector<FloatVector<dimension>> ret;
-            for (int i = 0; i < order; i++)
-            {
-                ret.emplace_back(FloatVector<dimension>(array.v[i*flat_dim]))
+            std::array<FloatVector<dimension>, flat_order> ret;
+            for (int i = 0; i < flat_order; i++)
+            { 
+                ret[i].broadcast_array(array.v + i*flat_dim);
             }
             return ret;
         }

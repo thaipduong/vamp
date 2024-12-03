@@ -83,6 +83,7 @@ namespace vamp::binding
         using ConfigurationArray = typename Robot::ConfigurationArray;
 
         using ConfigurationFlatState = typename Robot::ConfigurationFlatState;
+        using ConfigurationFlatStateVecArray = typename Robot::ConfigurationFlatStateVecArray;
         using ConfigurationFlatStateArray = typename Robot::ConfigurationFlatStateArray;
 
         using Path = vamp::planning::Path<Robot::dimension>;
@@ -90,6 +91,7 @@ namespace vamp::binding
         using Roadmap = vamp::planning::Roadmap<Robot::dimension>;
 
         using FlatPath = vamp::planning::Path<Robot::flat_dimension>;
+        using FlatStatePath = vamp::planning::Path<Robot::flatstate_dimension>;
         using FlatPlanningResult = vamp::planning::PlanningResult<Robot::flatstate_dimension>;
         using FlatRoadmap = vamp::planning::Roadmap<Robot::flatstate_dimension>;
 
@@ -245,7 +247,7 @@ namespace vamp::binding
             const std::size_t &resolution)
             -> FlatPath
         {       
-            ConfigurationFlatState flat_start, flat_goal;
+            ConfigurationFlatStateVecArray flat_start, flat_goal;
             for (int i = 0; i < Robot::flat_order; i++)
             {
                 flat_start[i].broadcast_array(start[i]);
@@ -257,14 +259,16 @@ namespace vamp::binding
         }
 
         inline static auto flatresult_to_path(
-            const FlatPath &flatpath,
+            const FlatStatePath &flatpath,
             const float &T,
             const std::size_t &resolution) -> FlatPath
         {
             FlatPath path;
             for (auto i = 0U; i < flatpath.size() - 2; ++i)
-            {
-                auto traj = vamp::planning::opt_traj<Robot::flat_dimension>(flatpath[i], flatpath[i+1], T);
+            {   
+                auto start = Robot::flatstate_to_vecarray(flatpath[i]);
+                auto goal = Robot::flatstate_to_vecarray(flatpath[i+1]);
+                auto traj = vamp::planning::opt_traj<Robot::flat_dimension>(start[0], start[1], goal[0], goal[1], T);
                 auto sub_path = traj.to_path(T, resolution);
                 path.concat(sub_path);
             }
@@ -319,15 +323,15 @@ namespace vamp::binding
                 Configuration(start), Configuration(goal), EnvironmentVector(environment), settings);
         }
 
-        inline static auto flat_roadmap(
-            const ConfigurationArray &start,
-            const ConfigurationArray &goal,
-            const EnvironmentInput &environment,
-            const vamp::planning::RoadmapSettings<vamp::planning::PRMStarNeighborParams> &settings) -> Roadmap
-        {
-            return FlatPRM::build_roadmap(
-                Configuration(start), Configuration(goal), EnvironmentVector(environment), settings);
-        }
+        // inline static auto flat_roadmap(
+        //     const ConfigurationArray &start,
+        //     const ConfigurationArray &goal,
+        //     const EnvironmentInput &environment,
+        //     const vamp::planning::RoadmapSettings<vamp::planning::PRMStarNeighborParams> &settings) -> Roadmap
+        // {
+        //     return FlatPRM::build_roadmap(
+        //         Configuration(start), Configuration(goal), EnvironmentVector(environment), settings);
+        // }
 
         inline static auto simplify(
             const Path &path,

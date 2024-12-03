@@ -165,11 +165,17 @@ namespace vamp::binding
             const float &T,
             const EnvironmentInput &environment)
             -> bool
-        {           
-            auto flat_start = ConfigurationFlatState(start);    
-            auto flat_goal = ConfigurationFlatState(goal);
+        {   
+            ConfigurationFlatState flat_start, flat_goal;
+            for (int i = 0; i < Robot::flat_order; i++)
+            {
+                flat_start[i].broadcast_array(start[i]);
+                flat_goal[i].broadcast_array(goal[i]);
+            }
+            // auto flat_start = ConfigurationFlatState(start);    
+            // auto flat_goal = ConfigurationFlatState(goal);
             auto start_time = std::chrono::steady_clock::now();
-            auto traj = vamp::planning::opt_traj<Robot::dimension>(flat_start.row(0), flat_start.row(1), flat_goal.row(0), flat_goal.row(1), T);
+            auto traj = vamp::planning::opt_traj<Robot::dimension>(flat_start[0], flat_start[1], flat_goal[0], flat_goal[1], T);
             auto nanoseconds = vamp::utils::get_elapsed_nanoseconds(start_time);
             std::cout << "Trajectory generation time: " << nanoseconds << "ns" << std::endl;
 
@@ -239,10 +245,14 @@ namespace vamp::binding
             const std::size_t &resolution)
             -> FlatPath
         {       
-            auto flat_start = ConfigurationFlatState(start);    
-            auto flat_goal = ConfigurationFlatState(goal);
+            ConfigurationFlatState flat_start, flat_goal;
+            for (int i = 0; i < Robot::flat_order; i++)
+            {
+                flat_start[i].broadcast_array(start[i]);
+                flat_goal[i].broadcast_array(goal[i]);
+            }
             auto traj = vamp::planning::opt_traj<Robot::flat_dimension>(
-                flat_start.row(0),flat_start.row(1), flat_goal.row(0),flat_goal.row(1), T);
+                flat_start[0],flat_start[1], flat_goal[0],flat_goal[1], T);
             return traj.to_path(T, resolution);
         }
 

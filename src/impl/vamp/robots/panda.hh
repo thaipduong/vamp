@@ -19,8 +19,8 @@ namespace vamp::robots
         using Configuration = FloatVector<dimension>;
         using ConfigurationArray = std::array<FloatT, dimension>;
         using ConfigurationFlat = FloatVector<flat_dimension>;
-        using ConfigurationFlatState = FloatVector<flat_dimension, flat_order>;
-        using ConfigurationFlatStateArray = std::array<FloatT, flatstate_dimension>;
+        using ConfigurationFlatState = std::array<FloatVector<flat_dimension>, flat_order>;
+        using ConfigurationFlatStateArray = std::array<std::array<FloatT, flat_dimension>, flat_order>;
 
         struct alignas(FloatVectorAlignment) ConfigurationBuffer
           : std::array<float, Configuration::num_scalars_rounded>

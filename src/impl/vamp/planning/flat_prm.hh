@@ -33,12 +33,13 @@ namespace vamp::planning
         static constexpr auto flat_order = Robot::flat_order;
         static constexpr auto flatstate_dimension = Robot::flatstate_dimension;
         using ConfigurationFlat = typename Robot::ConfigurationFlat;
-        using FlatState = typename Robot::ConfigurationFlatState; // The first row is y, the second row is y_dot
+        using FlatState = typename Robot::ConfigurationFlatState;
+        using FlatStateArray = typename Robot::ConfigurationFlatStateArray;
 
 
         inline static auto solve(
-            const FlatState &start,
-            const FlatState &goal,
+            const FlatStateArray &start,
+            const FlatStateArray &goal,
             const collision::Environment<FloatVector<rake>> &environment,
             const RoadmapSettings<NeighborParamsT> &settings) noexcept -> PlanningResult<flatstate_dimension>
         {
@@ -46,8 +47,8 @@ namespace vamp::planning
         }
 
         inline static auto solve(
-            const FlatState &start,
-            const std::vector<FlatState> &goals,
+            const FlatStateArray &start,
+            const std::vector<FlatStateArray> &goals,
             const collision::Environment<FloatVector<rake>> &environment,
             const RoadmapSettings<NeighborParamsT> &settings) noexcept -> PlanningResult<flatstate_dimension>
         {
@@ -150,9 +151,7 @@ namespace vamp::planning
                 roadmap.nearest(neighbors, NNFloatArray<flatstate_dimension>{state}, k, r);
                 for (const auto &[neighbor, distance] : neighbors)
                 {   
-                    auto flat_nb = neighbor.as_vector();
-                    auto flat_temp = state.as_vector();
-                    if (validate_poly_motion<Robot, rake, resolution>(flat_nb, flat_temp,
+                    if (validate_poly_motion<Robot, rake, resolution>(neighbor.as_vector(), state.as_vector(),
                                                                       environment))
                     {
                         node.neighbors.emplace_back(typename RoadmapNode::Neighbor{

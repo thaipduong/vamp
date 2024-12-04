@@ -17,10 +17,10 @@ namespace vamp::robots::fetch
     template <std::size_t block_width>
     using ConfigurationBlock = FloatVector<block_width, 8>;
 
-
-    using ConfigurationFlat = FloatVector<8>;
+    using FlatState = FloatVector<16>;
     template <std::size_t rake>
-    using ConfigurationBlock = FloatVector<rake, 8>;
+    using ConfigurationBlockFlat = FloatVector<rake, 8>;
+    const float max_vel = 1.0;
 
     alignas(Configuration::S::Alignment) constexpr std::array<float, 8> s_m_a{
         0.38615f,
@@ -48,6 +48,57 @@ namespace vamp::robots::fetch
     {
         q = q * s_m + s_a;
     }
+
+
+
+
+    alignas(Configuration::S::Alignment) constexpr std::array<float, 16> s_m_a_flat{
+        0.38615f,
+        3.2112f,
+        2.739f,
+        6.28318f,
+        4.502f,
+        6.28318f,
+        4.32f,
+        6.28318f, 
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel};
+    alignas(Configuration::S::Alignment) constexpr std::array<float, 16> s_a_a_flat{
+        0.0f,
+        -1.6056f,
+        -1.221f,
+        -3.14159f,
+        -2.251f,
+        -3.14159f,
+        -2.16f,
+        -3.14159f,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel};
+
+    const FlatState s_m_flat(s_m_a_flat);
+    const FlatState s_a_flat(s_a_a_flat);
+
+
+
+    inline void scale_flatstate(FlatState &z) noexcept
+    {
+        z = z * s_m_flat + s_a_flat;
+    }
+
+
+
 
     template <std::size_t block_width>
     inline void scale_configuration_block(ConfigurationBlock<block_width> &q) noexcept

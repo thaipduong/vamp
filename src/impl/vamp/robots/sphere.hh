@@ -19,9 +19,9 @@ namespace vamp::robots
         using Configuration = FloatVector<dimension>;
         using ConfigurationArray = std::array<FloatT, dimension>;
         using ConfigurationFlat = FloatVector<flat_dimension>;
-        using ConfigurationFlatState = std::array<FloatVector<flat_dimension>, flat_order>;
-        using ConfigurationFlatStateArray = std::array<FloatT, flatstate_dimension>;
-        
+        using ConfigurationFlatState = FloatVector<flatstate_dimension>; // Flat state (flat output + its derivatives)
+        using ConfigurationFlatStateVecArray = std::array<FloatVector<flat_dimension>, flat_order>; // For trajectory generation, should be merged with FlatState later
+        using ConfigurationFlatStateArray = std::array<FloatT, flatstate_dimension>; // This is for pybinding
 
         struct alignas(FloatVectorAlignment) ConfigurationBuffer
           : std::array<float, Configuration::num_scalars_rounded>
@@ -37,6 +37,38 @@ namespace vamp::robots
         static constexpr auto scale_configuration = sphere::scale_configuration;
         static constexpr auto descale_configuration = sphere::descale_configuration;
         static constexpr auto scale_flatstate = sphere::scale_flatstate;
+
+
+
+        static auto flatstate_to_vecarray(const ConfigurationFlatState &flatstate) -> ConfigurationFlatStateVecArray
+        {
+          
+          auto flat_array = flatstate.to_array();
+          std::array<FloatT, flat_dimension> flat_output{0};
+          std::array<FloatT, flat_dimension> flat_dev{0};
+          std::copy(flat_array.begin(), flat_array.begin() + flat_dimension, flat_output.begin());
+          std::copy(flat_array.begin() + flat_dimension, flat_array.begin() + flatstate_dimension, flat_dev.begin());
+          ConfigurationFlatStateVecArray ret{flat_output,flat_dev};
+          // for (int i = 0; i < flat_order; i++)
+          // { 
+          //   ret[i].pack(flat_array.data() + i*flat_dimension);
+          // }
+          return ret;
+        }
+
+        static auto flatarray_to_vecarray(const ConfigurationFlatStateArray &flat_array) -> ConfigurationFlatStateVecArray
+        {
+          std::array<FloatT, flat_dimension> flat_output{0};
+          std::array<FloatT, flat_dimension> flat_dev{0};
+          std::copy(flat_array.begin(), flat_array.begin() + flat_dimension, flat_output.begin());
+          std::copy(flat_array.begin() + flat_dimension, flat_array.begin() + flatstate_dimension, flat_dev.begin());
+          ConfigurationFlatStateVecArray ret{flat_output,flat_dev};
+          // for (int i = 0; i < flat_order; i++)
+          // { 
+          //   ret[i].pack(flat_array.data() + i*flat_dimension);
+          // }
+          return ret;
+        }
 
         template <std::size_t rake>
         static constexpr auto scale_configuration_block = sphere::scale_configuration_block<rake>;

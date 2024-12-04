@@ -12,9 +12,10 @@ namespace vamp::robots::baxter
     using ConfigurationBlock = FloatVector<block_width, 14>;
 
 
-    using ConfigurationFlat = FloatVector<14>;
+    using FlatState = FloatVector<28>;
     template <std::size_t rake>
-    using ConfigurationBlock = FloatVector<rake, 14>;
+    using ConfigurationBlockFlat = FloatVector<rake, 14>;
+    const float max_vel = 1.0;
 
     alignas(Configuration::S::Alignment) constexpr std::array<float, 14> s_m_a{
         3.40335987756,
@@ -53,6 +54,78 @@ namespace vamp::robots::baxter
     {
         q = q * s_m + s_a;
     }
+
+
+    alignas(Configuration::S::Alignment) constexpr std::array<float, 28> s_m_a_flat{
+        3.40335987756,
+        3.194,
+        6.10835987756,
+        2.6679999999999997,
+        6.118,
+        3.66479632679,
+        6.118,
+        3.40335987756,
+        3.194,
+        6.10835987756,
+        2.6679999999999997,
+        6.118,
+        3.66479632679,
+        6.118, 
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel,
+        -max_vel};
+    alignas(Configuration::S::Alignment) constexpr std::array<float, 28> s_a_a_flat{
+        -1.70167993878,
+        -2.147,
+        -3.05417993878,
+        -0.05,
+        -3.059,
+        -1.57079632679,
+        -3.059,
+        -1.70167993878,
+        -2.147,
+        -3.05417993878,
+        -0.05,
+        -3.059,
+        -1.57079632679,
+        -3.059,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel,
+        max_vel};
+
+    const FlatState s_m_flat(s_m_a_flat);
+    const FlatState s_a_flat(s_a_a_flat);
+
+
+
+    inline void scale_flatstate(FlatState &z) noexcept
+    {
+        z = z * s_m_flat + s_a_flat;
+    }
+
+
 
     template <std::size_t block_width>
     inline void scale_configuration_block(ConfigurationBlock<block_width> &q) noexcept

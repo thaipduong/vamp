@@ -168,12 +168,8 @@ namespace vamp::binding
             const EnvironmentInput &environment)
             -> bool
         {   
-            ConfigurationFlatState flat_start, flat_goal;
-            for (int i = 0; i < Robot::flat_order; i++)
-            {
-                flat_start[i].broadcast_array(start[i]);
-                flat_goal[i].broadcast_array(goal[i]);
-            }
+            auto flat_start = Robot::flatarray_to_vecarray(start);
+            auto flat_goal = Robot::flatarray_to_vecarray(goal);
             // auto flat_start = ConfigurationFlatState(start);    
             // auto flat_goal = ConfigurationFlatState(goal);
             auto start_time = std::chrono::steady_clock::now();
@@ -247,12 +243,9 @@ namespace vamp::binding
             const std::size_t &resolution)
             -> FlatPath
         {       
-            ConfigurationFlatStateVecArray flat_start, flat_goal;
-            for (int i = 0; i < Robot::flat_order; i++)
-            {
-                flat_start[i].broadcast_array(start[i]);
-                flat_goal[i].broadcast_array(goal[i]);
-            }
+            auto flat_start = Robot::flatstate_to_vecarray(ConfigurationFlatState(start));
+            auto flat_goal = Robot::flatstate_to_vecarray(ConfigurationFlatState(goal));
+
             auto traj = vamp::planning::opt_traj<Robot::flat_dimension>(
                 flat_start[0],flat_start[1], flat_goal[0],flat_goal[1], T);
             return traj.to_path(T, resolution);

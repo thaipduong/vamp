@@ -55,17 +55,19 @@ namespace vamp::planning
         {
             PlanningResult<flatstate_dimension> result;
 
-            FlatNN<flatstate_dimension> roadmap;
+            FlatNN<flat_dimension> roadmap;
 
             auto start_time = std::chrono::steady_clock::now();
 
             // We only need to double the state space from q to (q, q_dot) for: KD-Tree, Path, Trajectory Generation (Steering Fcn).
             // Maybe it is better to do that here in the planner instead of changing the robot class?
             // Check if the straight-line solution is valid
+            auto flat_start = Robot::flatstate_to_vecarray(start);
             for (const auto &goal : goals)
-            {
+            {   
+                auto flat_goal = Robot::flatstate_to_vecarray(goal);
                 // if (validate_motion<Robot, rake, resolution>(start, goal, environment))
-                if (validate_poly_motion<Robot, rake, resolution>(start, goal, environment))
+                if (validate_poly_motion<Robot, rake, resolution>(flat_start, flat_goal, environment))
                 {
                     result.path.emplace_back(start);
                     result.path.emplace_back(goal);

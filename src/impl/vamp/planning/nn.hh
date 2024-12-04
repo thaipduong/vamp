@@ -100,34 +100,36 @@ namespace vamp::planning
     struct NNFlatNode
     {
         std::size_t index;
-        NNFloatArray<flat_dim*order> array;
+        NNFloatArray<flat_dim*flat_order> array;
 
-        [[nodiscard]] inline auto as_vectors() const noexcept -> std::array<FloatVector<dimension>, flat_order>
+        [[nodiscard]] inline auto as_vector() const noexcept -> std::array<FloatVector<flat_dim>, flat_order>
         {
-            std::array<FloatVector<dimension>, flat_order> ret;
-            for (int i = 0; i < flat_order; i++)
-            { 
-                ret[i].broadcast_array(array.v + i*flat_dim);
-            }
+            //TODO: generalize this to arbitrary flat_order
+            std::array<FloatT, flat_dim> flat_output{0};
+            std::array<FloatT, flat_dim> flat_dev{0};
+            std::copy(array.v, array.v + flat_dim, flat_output.begin());
+            std::copy(array.v + flat_dim, array.v + 2*flat_dim, flat_dev.begin());
+            std::array<FloatVector<flat_dim>, flat_order>  ret{flat_output,flat_dev};
             return ret;
+            
         }
     };
 
-    template <std::size_t flat_dim, std::size_t order = 2>
+    template <std::size_t flat_dim, std::size_t flat_order = 2>
     struct NNFlatNodeKey
     {
-        inline auto operator()(const NNFlatNode<flat_dim, order> &node) const noexcept
-            -> const NNFloatArray<flat_dim*order> &
+        inline auto operator()(const NNFlatNode<flat_dim, flat_order> &node) const noexcept
+            -> const NNFloatArray<flat_dim*flat_order> &
         {
             return node.array;
         }
     };
 
-    template <std::size_t flat_dim, std::size_t order = 2, std::size_t batch = 128>
+    template <std::size_t flat_dim, std::size_t flat_order = 2, std::size_t batch = 128>
     using FlatNN = nigh::Nigh<
-        NNNode<flat_dim, order>,     //
-        Space<dimension*order>,      //
-        NNNodeKey<flat_dim, order>,  //
+        NNFlatNode<flat_dim, flat_order>,     //
+        Space<flat_dim*flat_order>,      //
+        NNFlatNodeKey<flat_dim, flat_order>,  //
         nigh::NoThreadSafety,  //
         nigh::KDTreeBatch<batch>>;
 }  // namespace vamp::planning

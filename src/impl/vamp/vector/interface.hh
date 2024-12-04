@@ -889,6 +889,21 @@ namespace vamp
             return result;
         }
 
+        // inline static constexpr auto
+        // pack_and_pad_zeros(std::array<typename S::ScalarT, num_scalars> scalar_data) noexcept
+        // {
+        //     // TODO: Consider de-duplication with trim()
+        //     auto result = Vector(std::forward<std::vector<typename S::ScalarT>>(scalar_data));
+        //     if constexpr (num_scalars % S::VectorWidth)
+        //     {
+        //         constexpr auto mask = Interface::generate_mask(
+        //             std::make_index_sequence<S::VectorWidth - (num_scalars % S::VectorWidth)>());
+        //         S::template blend_constant<mask>(result.d()->data.back(), S::zero_vector());
+        //     }
+
+        //     return result;
+        // }
+
         // TODO: Make sure we always want filling behavior here
         constexpr Vector(typename S::ScalarT scalar_data) noexcept : Vector(Interface::fill(scalar_data))
         {

@@ -113,8 +113,9 @@ def main(
 
         #simple.path.interpolate(vamp.panda.resolution())
         #np_path = path.numpy()
-        free = vamp.panda.validate_traj(a_flat, b_flat, 3.0, e)
-        print("Is the trajectory collision free?: ", free)
+        # free = vamp.panda.validate_traj(a_flat, b_flat, 3.0, e)
+        # print("Is the trajectory collision free?: ", free)
+        print("Planning time: {} nanoseconds".format(result.nanoseconds))
         sim.animate(prm_path)
 
 if __name__ == "__main__":

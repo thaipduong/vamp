@@ -257,10 +257,20 @@ namespace vamp::binding
             const std::size_t &resolution) -> FlatPath
         {
             FlatPath path;
-            for (auto i = 0U; i < flatpath.size() - 2; ++i)
+            std::cout << "Path length: " << flatpath.size() << std::endl;
+            std::cout << "Path0: " << flatpath[0] << std::endl;
+            std::cout << "Path1: " << flatpath[1] << std::endl;
+            for (auto i = 0U; i < flatpath.size() - 1; ++i)
             {   
+                std::cout << flatpath[i] << std::endl;
+                std::cout << flatpath[i+1] << std::endl;
                 auto start = Robot::flatstate_to_vecarray(flatpath[i]);
                 auto goal = Robot::flatstate_to_vecarray(flatpath[i+1]);
+                std::cout << "Converted:" << std::endl;
+                std::cout << start[0] << std::endl;
+                std::cout << start[1] << std::endl;
+                std::cout << goal[0] << std::endl;
+                std::cout << goal[1] << std::endl;
                 auto traj = vamp::planning::opt_traj<Robot::flat_dimension>(start[0], start[1], goal[0], goal[1], T);
                 auto sub_path = traj.to_path(T, resolution);
                 path.concat(sub_path);
@@ -584,7 +594,7 @@ namespace vamp::binding
             "goal"_a,
             "environment"_a,
             "settings"_a = vamp::planning::RoadmapSettings<vamp::planning::PRMStarNeighborParams>(
-                vamp::planning::PRMStarNeighborParams(Robot::dimension, Robot::space_measure())),
+                vamp::planning::PRMStarNeighborParams(Robot::flat_dimension, Robot::space_measure())),
             "Solve the motion planning problem with FlatPRM.");
 
         submodule.def(
@@ -594,7 +604,7 @@ namespace vamp::binding
             "goal"_a,
             "environment"_a,
             "settings"_a = vamp::planning::RoadmapSettings<vamp::planning::PRMStarNeighborParams>(
-                vamp::planning::PRMStarNeighborParams(Robot::dimension, Robot::space_measure())),
+                vamp::planning::PRMStarNeighborParams(Robot::flat_dimension, Robot::space_measure())),
             "Solve the motion planning problem with FlatPRM.");
 
         submodule.def(
@@ -608,7 +618,7 @@ namespace vamp::binding
         
         submodule.def(
             "flatresult_to_path",
-            RH::simplify,
+            RH::flatresult_to_path,
             "flatpath"_a,
             "T"_a,
             "resolution"_a,

@@ -105,16 +105,17 @@ def main(
 
         
         path = vamp.panda.traj_to_path(a_flat, b_flat, 3.0, 100)
-        #result = planner_func(a, b, e, plan_settings)
+        result = planner_func(a_flat, b_flat, e, plan_settings)
+        prm_path = vamp.panda.flatresult_to_path(result.path, 1.5, 100)
         #simple = vamp_module.simplify(result.path, 
         # e, simp_settings)
         #path = vamp.panda.traj_to_path(result, 100)
 
         #simple.path.interpolate(vamp.panda.resolution())
-        np_path = path.numpy()
+        #np_path = path.numpy()
         free = vamp.panda.validate_traj(a_flat, b_flat, 3.0, e)
         print("Is the trajectory collision free?: ", free)
-        sim.animate(path)
+        sim.animate(prm_path)
 
 if __name__ == "__main__":
     Fire(main)

@@ -138,7 +138,7 @@ namespace vamp::robots::panda
     // The space volume to calculate the radius for PRM* (optimality)
     inline static auto space_measure() noexcept -> float
     {
-        return 878819.1112640093;
+        return 878819.1112640093*2*2*2*2*2*2*2;
     }
 
     constexpr auto n_spheres = 59;

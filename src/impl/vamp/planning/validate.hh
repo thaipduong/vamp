@@ -138,6 +138,17 @@ namespace vamp::planning
         return validate_poly<Robot, rake, Robot::resolution>(traj, T, environment);
     }
 
+    template <typename Robot, std::size_t rake, std::size_t resolution>
+    inline constexpr auto validate_poly_motion(
+        const typename Robot::ConfigurationFlatState &start,
+        const typename Robot::ConfigurationFlatState &goal,
+        const collision::Environment<FloatVector<rake>> &environment) -> bool
+    {
+        auto flat_start = Robot::flatstate_to_vecarray(start);
+        auto flat_goal = Robot::flatstate_to_vecarray(goal);
+        return validate_poly_motion(flat_start, flat_goal, environment);
+    }
+
 
 
 }  // namespace vamp::planning

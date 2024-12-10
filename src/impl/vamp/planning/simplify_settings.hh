@@ -48,4 +48,13 @@ namespace vamp::planning
         BSplineSettings bspline;
         PerturbSettings perturb;
     };
+
+    struct SimplifyFlatSettings
+    {
+        std::size_t max_iterations{5};
+        std::vector<SimplifyRoutine> operations{{SHORTCUT}};
+
+        ReduceSettings reduce;
+        ShortcutSettings shortcut;
+    };
 }  // namespace vamp::planning

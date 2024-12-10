@@ -117,6 +117,7 @@ def main(
         # print("Is the trajectory collision free?: ", free)
         print("Planning time: {} nanoseconds".format(result.nanoseconds))
         sim.animate(prm_path)
+        simple = vamp_module.simplify(result.path, e, simp_settings)
 
 if __name__ == "__main__":
     Fire(main)
